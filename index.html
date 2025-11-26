@@ -22,7 +22,8 @@ body {
 </head>
 <body>
 
-<div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+<!-- Добавили класс carousel-fade -->
+<div id="carouselExample" class="carousel slide carousel-fade" data-bs-ride="carousel">
   <div class="carousel-indicators" id="carousel-indicators"></div>
   <div class="carousel-inner" id="carousel-inner"></div>
 </div>
@@ -63,10 +64,10 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
       indicators.appendChild(button);
     });
 
-    // Инициализация карусели
+    // Инициализация карусели с плавным затуханием и интервалом 15 секунд
     const myCarousel = document.querySelector('#carouselExample');
     const carousel = new bootstrap.Carousel(myCarousel, {
-      interval: 1000,
+      interval: 10000, // 15 секунд
       ride: 'carousel'
     });
   })
