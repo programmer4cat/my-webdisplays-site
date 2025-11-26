@@ -27,13 +27,13 @@ html, body {
     background-repeat: no-repeat;
 }
 
-/* Overlay - лёгкое затемнение */
+/* Overlay - усиленное затемнение */
 .carousel-item::before {
     content: "";
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0,0,0,0.3);
+    background: rgba(0,0,0,0.6); /* усиленное затемнение */
     z-index: 1;
 }
 
@@ -56,6 +56,7 @@ html, body {
 .carousel-text-wrapper h1 {
     font-size: 3em; /* основной текст */
     margin: 0 0 10px 0;
+    line-height: 1.2;
 }
 
 .carousel-text-wrapper p {
@@ -87,6 +88,12 @@ html, body {
 <div id="carouselExample" class="carousel slide carousel-fade" data-bs-ride="carousel">
   <div class="carousel-indicators" id="carousel-indicators"></div>
   <div class="carousel-inner" id="carousel-inner"></div>
+
+  <!-- Статический текст для всех слайдов -->
+  <div class="carousel-text-wrapper">
+    <h1>Онлайн-кинотеатр<br>KINOMURR</h1>
+    <p>Тепло и уют словно мы рядом!</p>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -109,20 +116,6 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
       const slide = document.createElement('div');
       slide.className = 'carousel-item' + (index === 0 ? ' active' : '');
       slide.style.backgroundImage = `url(${file.download_url})`;
-
-      // Создаём блок текстов
-      const textWrapper = document.createElement('div');
-      textWrapper.className = 'carousel-text-wrapper';
-
-      const mainText = document.createElement('h1');
-      mainText.textContent = `Фото ${index + 1}`; // основной текст
-
-      const subText = document.createElement('p');
-      subText.textContent = `Подпись или описание`; // второй текст
-
-      textWrapper.appendChild(mainText);
-      textWrapper.appendChild(subText);
-      slide.appendChild(textWrapper);
 
       carouselInner.appendChild(slide);
 
