@@ -67,7 +67,7 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
     // Инициализация карусели с плавным затуханием и интервалом 15 секунд
     const myCarousel = document.querySelector('#carouselExample');
     const carousel = new bootstrap.Carousel(myCarousel, {
-      interval: 10000, // 15 секунд
+      interval: 1000, // 15 секунд
       ride: 'carousel'
     });
   })
