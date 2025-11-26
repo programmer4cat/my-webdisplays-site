@@ -12,13 +12,13 @@ html, body {
     padding: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden;
     background: #101018;
+    overflow-x: hidden;
 }
 
 #carouselExample, .carousel-inner, .carousel-item {
     width: 100vw;
-    height: 100vh;
+    height: 90vh; /* оставляем 90% экрана для галереи, остальное для подвала */
     position: relative;
 }
 
@@ -90,24 +90,21 @@ html, body {
 
 /* Подвал */
 .footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
     width: 100%;
-    height: 10vh;          /* 10% от высоты экрана */
-    background: rgba(0,0,0,0.6); /* полупрозрачный фон */
-    color: #ffffff;
+    height: 10vh; /* 10% высоты экрана */
+    background-color: #000000; /* полностью черный */
+    color: #333333; /* темно-серый текст */
     display: flex;
     justify-content: center;
     align-items: center;
     font-family: 'Inter', Arial, sans-serif;
     font-size: 1.2em;
-    z-index: 2;
 }
 </style>
 </head>
 <body>
 
+<!-- Галерея -->
 <div id="carouselExample" class="carousel slide carousel-fade" data-bs-ride="carousel">
   <div class="carousel-indicators" id="carousel-indicators"></div>
   <div class="carousel-inner" id="carousel-inner"></div>
@@ -117,11 +114,11 @@ html, body {
     <h1>Онлайн-кинотеатр<br>KINOMURR</h1>
     <p>Тепло и уют словно мы рядом!</p>
   </div>
+</div>
 
-  <!-- Подвал -->
-  <div class="footer">
+<!-- Подвал отдельно -->
+<div class="footer">
     © 2025 KINOMURR. All rights reserved.
-  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
