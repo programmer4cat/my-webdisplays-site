@@ -58,4 +58,39 @@ const user = 'programmer4cat';
 const repo = 'my-webdisplays-site';
 const folder = 'images';
 
-fetch
+fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
+  .then(response => response.json())
+  .then(files => {
+    const carouselInner = document.getElementById('carousel-inner');
+    const indicators = document.getElementById('carousel-indicators');
+
+    files.forEach((file, index) => {
+      if(file.type !== 'file') return;
+
+      const slide = document.createElement('div');
+      slide.className = 'carousel-item' + (index === 0 ? ' active' : '');
+      const img = document.createElement('img');
+      img.src = file.download_url;
+      img.alt = file.name;
+      slide.appendChild(img);
+      carouselInner.appendChild(slide);
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.setAttribute('data-bs-target', '#carouselExample');
+      button.setAttribute('data-bs-slide-to', index);
+      if(index === 0) button.className = 'active';
+      indicators.appendChild(button);
+    });
+
+    const myCarousel = document.querySelector('#carouselExample');
+    new bootstrap.Carousel(myCarousel, {
+      interval: 15000,
+      ride: 'carousel'
+    });
+  })
+  .catch(err => console.error('Ошибка загрузки изображений:', err));
+</script>
+
+</body>
+</html>
