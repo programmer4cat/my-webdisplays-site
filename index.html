@@ -1,31 +1,77 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<title>Привет!</title>
+<meta charset="UTF-8">
+<title>Галерея</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
 body {
     background: #101018;
-    color: white;
-    font-family: Arial, sans-serif;
     display: flex;
-    align-items: center;
     justify-content: center;
-    height: 100vh;
+    align-items: center;
+    min-height: 100vh;
     margin: 0;
-    font-size: 64px;
 }
-.box {
-    text-align: center;
-    padding: 20px 40px;
-    border: 4px solid #8a2be2;
-    border-radius: 20px;
-    background: #181828;
-    text-shadow: 0 0 20px #8a2be2;
+.carousel-item img {
+    max-height: 80vh;
+    object-fit: contain;
+    margin: auto;
 }
 </style>
 </head>
 <body>
-    <div class="box">Привет!</div>
+
+<div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-indicators" id="carousel-indicators"></div>
+  <div class="carousel-inner" id="carousel-inner"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Укажи свой репозиторий
+const user = 'programmer4cat';
+const repo = 'my-webdisplays-site';
+const folder = 'images';
+
+// GitHub API: получаем список файлов в папке
+fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
+  .then(response => response.json())
+  .then(files => {
+    const carouselInner = document.getElementById('carousel-inner');
+    const indicators = document.getElementById('carousel-indicators');
+
+    files.forEach((file, index) => {
+      if(file.type !== 'file') return; // пропускаем папки
+
+      // Слайд
+      const slide = document.createElement('div');
+      slide.className = 'carousel-item' + (index === 0 ? ' active' : '');
+      const img = document.createElement('img');
+      img.src = file.download_url; // прямая ссылка на файл
+      img.className = 'd-block w-100';
+      img.alt = file.name;
+      slide.appendChild(img);
+      carouselInner.appendChild(slide);
+
+      // Индикатор
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.setAttribute('data-bs-target', '#carouselExample');
+      button.setAttribute('data-bs-slide-to', index);
+      if(index === 0) button.className = 'active';
+      indicators.appendChild(button);
+    });
+
+    // Инициализация карусели
+    const myCarousel = document.querySelector('#carouselExample');
+    const carousel = new bootstrap.Carousel(myCarousel, {
+      interval: 15000,
+      ride: 'carousel'
+    });
+  })
+  .catch(err => console.error('Ошибка загрузки изображений:', err));
+</script>
+
 </body>
 </html>
