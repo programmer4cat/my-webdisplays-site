@@ -47,27 +47,28 @@ html, body {
 /* Тексты */
 .carousel-text-wrapper {
     position: absolute;
-    top: 20%;        /* сдвиг выше */
-    left: 15%;       /* отступ от левого края 15% */
-    width: 50%;      /* левая половина экрана */
+    top: 50%;               /* вертикальное центрирование */
+    left: 15%;              /* отступ от левого края */
+    width: 50%;             /* левая половина экрана */
     z-index: 2;
     color: #ffffff;
     text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
-    font-family: 'Inter', Arial, sans-serif; /* шрифт Inter */
+    font-family: 'Inter', Arial, sans-serif;
+    transform: translateY(-50%); /* смещаем блок вверх на половину своей высоты */
 }
 
 .carousel-text-wrapper h1 {
     font-size: 3.3em; 
-    margin: 0 0 10px 0;
+    margin: 0 0 20px 0; /* увеличенный отступ снизу */
     line-height: 1.2;
-    font-weight: 700; /* жирнее */
+    font-weight: 700; 
 }
 
 .carousel-text-wrapper p {
     font-size: 1.65em; 
     margin: 0;
     color: #afafaf; 
-    font-weight: 300; /* тоньше */
+    font-weight: 300; 
 }
 
 /* Индикаторы полоски */
