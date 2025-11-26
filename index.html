@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Галерея</title>
+<title>Галерея с текстом</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
 html, body {
@@ -17,18 +17,70 @@ html, body {
 #carouselExample, .carousel-inner, .carousel-item {
     width: 100vw;
     height: 100vh;
+    position: relative;
 }
 
 /* Каждый слайд с фоном */
 .carousel-item {
-    background-size: cover;       /* картинка полностью покрывает контейнер */
-    background-position: center;  /* центрируем */
+    background-size: cover;
+    background-position: center;
     background-repeat: no-repeat;
+}
+
+/* Overlay - лёгкое затемнение */
+.carousel-item::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.3); /* затемнение */
+    z-index: 1;
 }
 
 /* Мягкий fade */
 .carousel-fade .carousel-item {
     transition: opacity 2s ease-in-out;
+}
+
+/* Тексты */
+.carousel-text-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 50%; /* левая половина экрана */
+    padding-left: 50px; /* отступ слева */
+    z-index: 2;
+    color: #ffffff;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
+}
+
+.carousel-text-wrapper h1 {
+    font-size: 3em; /* основной текст */
+    margin: 0 0 10px 0;
+}
+
+.carousel-text-wrapper p {
+    font-size: 1.5em; /* второй текст */
+    margin: 0;
+}
+
+/* Индикаторы полоски */
+.carousel-indicators {
+    bottom: 20px;
+}
+
+.carousel-indicators button {
+    width: 40px;
+    height: 6px;
+    border-radius: 3px;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin: 0 5px;
+    transition: background-color 0.3s;
+}
+
+.carousel-indicators button.active {
+    background-color: #ffffff;
 }
 </style>
 </head>
@@ -58,7 +110,22 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
       // Создаём слайд
       const slide = document.createElement('div');
       slide.className = 'carousel-item' + (index === 0 ? ' active' : '');
-      slide.style.backgroundImage = `url(${file.download_url})`; // <-- устанавливаем фон
+      slide.style.backgroundImage = `url(${file.download_url})`;
+
+      // Создаём блок текстов
+      const textWrapper = document.createElement('div');
+      textWrapper.className = 'carousel-text-wrapper';
+
+      const mainText = document.createElement('h1');
+      mainText.textContent = `Фото ${index + 1}`; // основной текст
+
+      const subText = document.createElement('p');
+      subText.textContent = `Подпись или описание`; // второй текст
+
+      textWrapper.appendChild(mainText);
+      textWrapper.appendChild(subText);
+      slide.appendChild(textWrapper);
+
       carouselInner.appendChild(slide);
 
       // Создаём индикатор
@@ -73,7 +140,7 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
     // Инициализация карусели
     const myCarousel = document.querySelector('#carouselExample');
     new bootstrap.Carousel(myCarousel, {
-      interval: 1500, // 15 секунд
+      interval: 15000, // 15 секунд
       ride: 'carousel'
     });
   })
