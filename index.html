@@ -13,16 +13,40 @@ body {
     min-height: 100vh;
     margin: 0;
 }
+
+/* Важная правка: позиции и размеры слайдов для fade */
+.carousel-item {
+    position: absolute; /* делаем абсолютное позиционирование */
+    top: 0;
+    left: 0;
+    width: 100%;
+    transition: opacity 1s ease-in-out;
+    opacity: 0;
+}
+
+.carousel-item.active {
+    position: relative; /* активный слайд занимает место */
+    opacity: 1;
+    z-index: 2;
+}
+
+.carousel-inner {
+    position: relative;
+    width: 100%;
+    max-width: 80vw; /* ограничиваем ширину */
+    height: 80vh;    /* фиксированная высота */
+    overflow: hidden;
+}
+
 .carousel-item img {
-    max-height: 80vh;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
-    margin: auto;
 }
 </style>
 </head>
 <body>
 
-<!-- Добавили класс carousel-fade -->
 <div id="carouselExample" class="carousel slide carousel-fade" data-bs-ride="carousel">
   <div class="carousel-indicators" id="carousel-indicators"></div>
   <div class="carousel-inner" id="carousel-inner"></div>
@@ -30,49 +54,8 @@ body {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Укажи свой репозиторий
 const user = 'programmer4cat';
 const repo = 'my-webdisplays-site';
 const folder = 'images';
 
-// GitHub API: получаем список файлов в папке
-fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
-  .then(response => response.json())
-  .then(files => {
-    const carouselInner = document.getElementById('carousel-inner');
-    const indicators = document.getElementById('carousel-indicators');
-
-    files.forEach((file, index) => {
-      if(file.type !== 'file') return; // пропускаем папки
-
-      // Слайд
-      const slide = document.createElement('div');
-      slide.className = 'carousel-item' + (index === 0 ? ' active' : '');
-      const img = document.createElement('img');
-      img.src = file.download_url; // прямая ссылка на файл
-      img.className = 'd-block w-100';
-      img.alt = file.name;
-      slide.appendChild(img);
-      carouselInner.appendChild(slide);
-
-      // Индикатор
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.setAttribute('data-bs-target', '#carouselExample');
-      button.setAttribute('data-bs-slide-to', index);
-      if(index === 0) button.className = 'active';
-      indicators.appendChild(button);
-    });
-
-    // Инициализация карусели с плавным затуханием и интервалом 15 секунд
-    const myCarousel = document.querySelector('#carouselExample');
-    const carousel = new bootstrap.Carousel(myCarousel, {
-      interval: 1000, // 15 секунд
-      ride: 'carousel'
-    });
-  })
-  .catch(err => console.error('Ошибка загрузки изображений:', err));
-</script>
-
-</body>
-</html>
+fetch
