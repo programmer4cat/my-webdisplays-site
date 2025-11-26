@@ -5,29 +5,28 @@
 <title>Галерея</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-body {
-    background: #101018;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+html, body {
     margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #101018;
 }
 
 .carousel-inner {
-    width: 80vw;
-    height: 80vh;
+    width: 100%;
+    height: 100%;
 }
 
 .carousel-item img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover; /* полностью заполняем экран без искажений */
 }
 
-/* Мягкий fade-переход */
+/* Мягкий fade */
 .carousel-fade .carousel-item {
-    transition: opacity 1.2s ease-in-out; /* увеличиваем длительность и делаем плавнее */
+    transition: opacity 1.2s ease-in-out;
 }
 </style>
 </head>
@@ -53,7 +52,6 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
     files.forEach((file, index) => {
       if(file.type !== 'file') return;
 
-      // Слайд
       const slide = document.createElement('div');
       slide.className = 'carousel-item' + (index === 0 ? ' active' : '');
       const img = document.createElement('img');
@@ -62,7 +60,6 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
       slide.appendChild(img);
       carouselInner.appendChild(slide);
 
-      // Индикатор
       const button = document.createElement('button');
       button.type = 'button';
       button.setAttribute('data-bs-target', '#carouselExample');
@@ -71,7 +68,6 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
       indicators.appendChild(button);
     });
 
-    // Инициализация карусели
     const myCarousel = document.querySelector('#carouselExample');
     new bootstrap.Carousel(myCarousel, {
       interval: 15000, // 15 секунд
