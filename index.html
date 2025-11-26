@@ -13,31 +13,10 @@ body {
     min-height: 100vh;
     margin: 0;
 }
-
-/* Важная правка: позиции и размеры слайдов для fade */
-.carousel-item {
-    position: absolute; /* делаем абсолютное позиционирование */
-    top: 0;
-    left: 0;
-    width: 100%;
-    transition: opacity 1s ease-in-out;
-    opacity: 0;
-}
-
-.carousel-item.active {
-    position: relative; /* активный слайд занимает место */
-    opacity: 1;
-    z-index: 2;
-}
-
 .carousel-inner {
-    position: relative;
-    width: 100%;
-    max-width: 80vw; /* ограничиваем ширину */
-    height: 80vh;    /* фиксированная высота */
-    overflow: hidden;
+    width: 80vw;
+    height: 80vh;
 }
-
 .carousel-item img {
     width: 100%;
     height: 100%;
@@ -67,6 +46,7 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
     files.forEach((file, index) => {
       if(file.type !== 'file') return;
 
+      // Слайд
       const slide = document.createElement('div');
       slide.className = 'carousel-item' + (index === 0 ? ' active' : '');
       const img = document.createElement('img');
@@ -75,6 +55,7 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
       slide.appendChild(img);
       carouselInner.appendChild(slide);
 
+      // Индикатор
       const button = document.createElement('button');
       button.type = 'button';
       button.setAttribute('data-bs-target', '#carouselExample');
@@ -83,6 +64,7 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
       indicators.appendChild(button);
     });
 
+    // Инициализация карусели
     const myCarousel = document.querySelector('#carouselExample');
     new bootstrap.Carousel(myCarousel, {
       interval: 15000,
