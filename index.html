@@ -263,13 +263,23 @@ fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`
         }, 500);
 
         // плавное переключение картинки
-        function fadeSwap(imgElement, newUrl) {
+            function fadeSwap(imgElement, newUrl) {
+            // Загружаем новое изображение заранее
+            const tmp = new Image();
+            tmp.src = newUrl;
+            tmp.onload = () => {
+            // Плавное затухание старого
+            imgElement.style.transition = "opacity 0.9s ease";
             imgElement.style.opacity = 0;
+            
             setTimeout(() => {
-                imgElement.src = newUrl;
-                imgElement.style.opacity = 1;
-            }, 900);
-        }
+            // Меняем src на уже загруженное
+            imgElement.src = newUrl;
+            imgElement.style.opacity = 1;
+        }, 900); // соответствует времени transition
+    };
+}
+
 
         // Получаем случайное фото из пула, обновляем пул, восстанавливаем если пуст
         function getRandomImage() {
