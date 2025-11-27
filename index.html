@@ -134,13 +134,13 @@ html, body {
 
 
 #mini-gallery .mg-item {
-    width: 31%;            /* Общая ширина, влияет на расстояние между окошками */ 
+    width: 25%;            /* Общая ширина, влияет на расстояние между окошками */ 
     aspect-ratio: 9 / 16;  /* вертикальные блоки */
     overflow: hidden;
     position: relative;
     
     border-radius: 15px;   
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
     background: rgba(255, 255, 255, 0.05);
 }
 
@@ -233,7 +233,7 @@ const MG_REPO = "my-webdisplays-site";
 const MG_FOLDER = "mini-gallery";
 
 // Интервал между стартами циклов смены (всего 3 окна с паузами)
-const cycleInterval = 15000; // 10 секунд
+const cycleInterval = 15000; // 15 секунд
 
 fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`)
     .then(r => r.json())
