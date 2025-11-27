@@ -227,7 +227,8 @@ const MG_USER = "programmer4cat";
 const MG_REPO = "my-webdisplays-site";
 const MG_FOLDER = "mini-gallery";
 
-const changeIntervals = [10000, 15000, 12000]; // 10s, 15s, 12s
+// Интервал между стартами циклов смены (всего 3 окна с паузами)
+const cycleInterval = 10000; // 10 секунд
 
 fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`)
     .then(r => r.json())
@@ -238,9 +239,10 @@ fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`
 
         if (images.length < 3) return;
 
-        let chosen = [];
         let pool = [...images];
 
+        // выбираем три разных стартовых изображения
+        const chosen = [];
         for (let i = 0; i < 3; i++) {
             const index = Math.floor(Math.random() * pool.length);
             chosen.push(pool[index]);
@@ -248,15 +250,19 @@ fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`
         }
 
         const imgs = document.querySelectorAll("#mini-gallery .mg-item img");
+
+        // показываем стартовые изображения
         imgs.forEach((img, i) => {
             img.src = chosen[i];
             setTimeout(() => img.style.opacity = 1, 100);
         });
 
+        // плавное появление всей мини-галереи
         setTimeout(() => {
             document.getElementById("mini-gallery").style.opacity = 1;
         }, 500);
 
+        // плавное переключение картинки
         function fadeSwap(imgElement, newUrl) {
             imgElement.style.opacity = 0;
             setTimeout(() => {
@@ -265,19 +271,37 @@ fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`
             }, 900);
         }
 
-        imgs.forEach((img, i) => {
-            setInterval(() => {
-                if (pool.length === 0) pool = [...images];
+        // Получаем случайное фото из пула, обновляем пул, восстанавливаем если пуст
+        function getRandomImage() {
+            if (pool.length === 0) pool = [...images];
+            const idx = Math.floor(Math.random() * pool.length);
+            const img = pool[idx];
+            pool.splice(idx, 1);
+            return img;
+        }
 
-                const idx = Math.floor(Math.random() * pool.length);
-                const next = pool[idx];
-                pool.splice(idx, 1);
+        // Функция смены всех трёх окон последовательно с задержкой 1 сек
+        function cycleChange() {
+            fadeSwap(imgs[0], getRandomImage());
 
-                fadeSwap(img, next);
-            }, changeIntervals[i]);
-        });
+            setTimeout(() => {
+                fadeSwap(imgs[1], getRandomImage());
+            }, 1000);
+
+            setTimeout(() => {
+                fadeSwap(imgs[2], getRandomImage());
+            }, 2000);
+        }
+
+        // Запускаем первый цикл сразу
+        cycleChange();
+
+        // Запускаем циклы с интервалом
+        setInterval(cycleChange, cycleInterval + 2000); 
+        // +2000 — потому что 2 секунды длится последовательная смена
     })
     .catch(err => console.error("Ошибка мини-галереи:", err));
+
 
 
 /* ------------------------ */
