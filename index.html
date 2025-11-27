@@ -91,19 +91,18 @@ html, body {
 /* Часы */
 #moscow-clock {
     position: absolute;
-    bottom: 30px;   /* отступ от низа */
-    right: 30px;    /* отступ от правого края */
+    bottom: 30px;
+    right: 30px;
     font-family: 'Orbitron', sans-serif;
     font-size: 1.5em;
     color: #ffffff;
     z-index: 10;
 }
-
 </style>
 </head>
 <body>
 
-<div id="carouselExample" class="carousel slide carousel-fade" data-bs-ride="carousel">
+<div id="carouselExample" class="carousel slide carousel-fade">
   <div class="carousel-indicators" id="carousel-indicators"></div>
   <div class="carousel-inner" id="carousel-inner"></div>
 
@@ -146,6 +145,7 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
       indicators.appendChild(button);
     });
 
+    // Инициализация карусели через JS
     const myCarousel = document.querySelector('#carouselExample');
     new bootstrap.Carousel(myCarousel, {
       interval: 15000,
