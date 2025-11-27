@@ -191,7 +191,7 @@ function updateMoscowTime() {
     let minutes = moscowTime.getMinutes().toString().padStart(2, "0");
 
     document.getElementById("moscow-clock").innerText =
-        `${dayName}    ${hours}:${minutes}`;
+        `${dayName}\u00A0\u00A0\u00A0\u00A0${hours}:${minutes}`;
 }
 
 // Обновляем каждую минуту
