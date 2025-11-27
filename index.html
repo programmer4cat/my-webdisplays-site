@@ -119,30 +119,29 @@ html, body {
 /* ---------------------- */
 
 #mini-gallery {
-    position: absolute;
-    top: 40%;              /* вертикальный центр экрана */
-    right: 10%;            /* отступ от правого края 10% ширины окна */
-    transform: translateY(-50%);  /* смещение вверх на половину высоты, чтобы центрировать по вертикали */
-    max-width: 600px;
-    display: flex;
-    justify-content: space-between;
-    opacity: 0;
-    transition: opacity 1s ease;
-    z-index: 5;
+  position: absolute;
+  top: 40%;
+  right: 10%;
+  transform: translateY(-50%);
+  max-width: 600px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;  /* умеренный промежуток между окнами */
+  opacity: 0;
+  transition: opacity 1s ease;
+  z-index: 5;
 }
-
-
 
 #mini-gallery .mg-item {
-    width: 25%;            /* Общая ширина, влияет на расстояние между окошками */ 
-    aspect-ratio: 9 / 16;  /* вертикальные блоки */
-    overflow: hidden;
-    position: relative;
-    
-    border-radius: 15px;   
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-    background: rgba(255, 255, 255, 0.05);
+  width: 30%; /* чуть уже, чтобы три + gap влезли */
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+  position: relative;
+  border-radius: 15px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.05);
 }
+
 
 #mini-gallery .mg-item img {
     width: 100%;
