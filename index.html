@@ -134,7 +134,7 @@ html, body {
 
 
 #mini-gallery .mg-item {
-    width: 31%;              
+    width: 31%;            /* Общая ширина, влияет на расстояние между окошками */ 
     aspect-ratio: 9 / 16;  /* вертикальные блоки */
     overflow: hidden;
     position: relative;
@@ -300,12 +300,12 @@ fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`
             fadeSwap(imgs[0], getRandomImage());
 
             setTimeout(() => {
-                fadeSwap(imgs[1], getRandomImage());
-            }, 1000);
+                fadeSwap(imgs[1], getRandomImage());  /* Здесь настраиваются задержки последовательного переключения окон */
+            }, 500);
 
             setTimeout(() => {
                 fadeSwap(imgs[2], getRandomImage());
-            }, 2000);
+            }, 1000);
         }
 
         // НЕ запускаем смену сразу,
@@ -314,7 +314,7 @@ fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`
             cycleChange();
 
             // Запускаем циклы с интервалом после первого запуска
-            setInterval(cycleChange, cycleInterval + 2000);
+            setInterval(cycleChange, cycleInterval + 1500);  /* Задержка перед стартом цикла переключения окон, чтобы в первый раз не срабатывало */
         }, cycleInterval);
     })
     .catch(err => console.error("Ошибка мини-галереи:", err));
