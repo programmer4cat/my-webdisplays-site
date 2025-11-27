@@ -301,11 +301,11 @@ fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`
 
             setTimeout(() => {
                 fadeSwap(imgs[1], getRandomImage());  /* Здесь настраиваются задержки последовательного переключения окон */
-            }, 500);
+            }, 1000);
 
             setTimeout(() => {
                 fadeSwap(imgs[2], getRandomImage());
-            }, 1000);
+            }, 2000);
         }
 
         // НЕ запускаем смену сразу,
@@ -314,7 +314,7 @@ fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`
             cycleChange();
 
             // Запускаем циклы с интервалом после первого запуска
-            setInterval(cycleChange, cycleInterval + 1500);  /* Задержка перед стартом цикла переключения окон, чтобы в первый раз не срабатывало */
+            setInterval(cycleChange, cycleInterval + 2000);  /* Задержка перед стартом цикла переключения окон, чтобы в первый раз не срабатывало */
         }, cycleInterval);
     })
     .catch(err => console.error("Ошибка мини-галереи:", err));
