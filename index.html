@@ -233,7 +233,7 @@ const MG_REPO = "my-webdisplays-site";
 const MG_FOLDER = "mini-gallery";
 
 // Интервал между стартами циклов смены (всего 3 окна с паузами)
-const cycleInterval = 10000; // 10 секунд
+const cycleInterval = 15000; // 10 секунд
 
 fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`)
     .then(r => r.json())
@@ -301,11 +301,11 @@ fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`
 
             setTimeout(() => {
                 fadeSwap(imgs[1], getRandomImage());  /* Здесь настраиваются задержки последовательного переключения окон */
-            }, 700);
+            }, 600);
 
             setTimeout(() => {
                 fadeSwap(imgs[2], getRandomImage());
-            }, 1400);
+            }, 1200);
         }
 
         // НЕ запускаем смену сразу,
