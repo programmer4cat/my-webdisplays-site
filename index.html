@@ -212,7 +212,7 @@ fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
 
     const myCarousel = document.querySelector('#carouselExample');
     new bootstrap.Carousel(myCarousel, {
-      interval: 5000,
+      interval: 15000,
       ride: 'carousel'
     });
   })
@@ -293,14 +293,17 @@ fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`
             }, 2000);
         }
 
-        // Запускаем первый цикл сразу
-        cycleChange();
+        // НЕ запускаем смену сразу,
+        // а ждём интервал, и только потом первый цикл
+        setTimeout(() => {
+            cycleChange();
 
-        // Запускаем циклы с интервалом
-        setInterval(cycleChange, cycleInterval + 2000); 
-        // +2000 — потому что 2 секунды длится последовательная смена
+            // Запускаем циклы с интервалом после первого запуска
+            setInterval(cycleChange, cycleInterval + 2000);
+        }, cycleInterval);
     })
     .catch(err => console.error("Ошибка мини-галереи:", err));
+
 
 
 
