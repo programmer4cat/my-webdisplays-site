@@ -120,34 +120,39 @@ html, body {
 
 #mini-gallery {
     position: absolute;
-    top: 22%;
-    right: 5%;
-    width: 38%;
+    bottom: 40px;   /* смещение от низа, подгоняешь по макету */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;
     display: flex;
     justify-content: space-between;
-    opacity: 0;
-    transition: opacity 2s ease;
+    opacity: 0; /* для плавного появления */
+    transition: opacity 1s ease;
     z-index: 5;
 }
 
-.mg-item {
-    width: 31%;
-    aspect-ratio: 9 / 16;
+#mini-gallery .mg-item {
+    width: 31%;              /* три окна с небольшим промежутком */
+    aspect-ratio: 9 / 16;    /* вертикальные блоки */
     overflow: hidden;
-    background: rgba(255,255,255,0.05);
-    border-radius: 20px; /* Закругление углов */
     position: relative;
+    
+    /* Сильное скругление углов */
+    border-radius: 25px;
+    
+    /* Усиленная тень */
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+    
+    background: rgba(255, 255, 255, 0.05);
 }
 
-.mg-item img {
+#mini-gallery .mg-item img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    transition: opacity 1.4s ease;
-    position: absolute;
-    top: 0; left: 0;
+    object-fit: cover;  /* пропорционально вписываем картинку, обрезая лишнее */
+    transition: opacity 0.9s ease;
 }
+
 </style>
 </head>
 
@@ -172,9 +177,9 @@ html, body {
 <!--     МИНИ-ГАЛЕРЕЯ 9:16        -->
 <!-- ---------------------------- -->
 <div id="mini-gallery">
-    <div class="mg-item"><img></div>
-    <div class="mg-item"><img></div>
-    <div class="mg-item"><img></div>
+    <div class="mg-item"><img src="" alt=""></div>
+    <div class="mg-item"><img src="" alt=""></div>
+    <div class="mg-item"><img src="" alt=""></div>
 </div>
 
 
