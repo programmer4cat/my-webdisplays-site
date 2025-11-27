@@ -120,17 +120,18 @@ html, body {
 
 #mini-gallery {
     position: absolute;
-    bottom: 40px;        /* отступ от низа */
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: 1000px;   /* ограничиваем ширину всей галереи */
+    top: 50%;              /* вертикальный центр экрана */
+    right: 10%;            /* отступ от правого края 10% ширины окна */
+    transform: translateY(-50%);  /* смещение вверх на половину высоты, чтобы центрировать по вертикали */
+    max-width: 1000px;
     display: flex;
     justify-content: space-between;
-    opacity: 0;          /* плавное появление */
+    opacity: 0;
     transition: opacity 1s ease;
     z-index: 5;
-    height: auto;        /* не растягиваем на весь экран */
 }
+
+
 
 #mini-gallery .mg-item {
     width: 31%;              
