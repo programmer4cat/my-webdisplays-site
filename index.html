@@ -81,21 +81,24 @@ html, body {
 
 .my-btn {
     display: inline-block;
-    padding: 12px 24px;
+    padding: 18px 36px;        /* больше отступы — кнопка выше и шире */
     background-color: #ff5136;
     color: #ffffff;
     text-decoration: none;
     font-family: 'Inter', Arial, sans-serif;
-    font-size: 1rem;
+    font-size: 1.2rem;         /* увеличенный размер текста */
     font-weight: 500;
-    border-radius: 6px;
+    border-radius: 10px;
     transition: background-color 0.3s ease;
     margin-top: 10px;
+    /* при желании можно добавить минимальный размер */
+    /* min-width: 200px; min-height: 50px; */
 }
 
 .my-btn:hover {
     background-color: #e0492e;
 }
+
 
 .carousel-indicators {
     bottom: 20px;
@@ -130,7 +133,7 @@ html, body {
   top: 40%;
   right: 10%;
   transform: translateY(-50%);
-  max-width: 700px;
+  max-width: 600px;
   display: flex;
   justify-content: flex-start;
   gap: 12px;
@@ -167,7 +170,7 @@ html, body {
   <div class="carousel-text-wrapper">
     <h1>Minecraft-кинотеатр<br>KINOMURR</h1>
     <p>Тепло и уют словно мы рядом!</p>
-    <a href="#" class="my-btn">Искать приключения</a>
+    <a href="#" class="my-btn">Искать приключения!</a>
   </div>
 
   <div id="moscow-clock"></div>
