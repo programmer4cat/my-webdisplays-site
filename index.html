@@ -120,38 +120,36 @@ html, body {
 
 #mini-gallery {
     position: absolute;
-    bottom: 40px;   /* смещение от низа, подгоняешь по макету */
+    bottom: 40px;        /* отступ от низа */
     left: 50%;
     transform: translateX(-50%);
-    width: 95%;
+    max-width: 1000px;   /* ограничиваем ширину всей галереи */
     display: flex;
     justify-content: space-between;
-    opacity: 0; /* для плавного появления */
+    opacity: 0;          /* плавное появление */
     transition: opacity 1s ease;
     z-index: 5;
+    height: auto;        /* не растягиваем на весь экран */
 }
 
 #mini-gallery .mg-item {
-    width: 31%;              /* три окна с небольшим промежутком */
-    aspect-ratio: 9 / 16;    /* вертикальные блоки */
+    width: 31%;              
+    aspect-ratio: 9 / 16;  /* вертикальные блоки */
     overflow: hidden;
     position: relative;
     
-    /* Сильное скругление углов */
-    border-radius: 25px;
-    
-    /* Усиленная тень */
+    border-radius: 25px;   
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
-    
     background: rgba(255, 255, 255, 0.05);
 }
 
 #mini-gallery .mg-item img {
     width: 100%;
     height: 100%;
-    object-fit: cover;  /* пропорционально вписываем картинку, обрезая лишнее */
+    object-fit: cover;    
     transition: opacity 0.9s ease;
 }
+
 
 </style>
 </head>
