@@ -16,18 +16,29 @@
 <meta name="naverbot" content="noindex, nofollow">
 <meta name="yeti" content="noindex, nofollow">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&family=Orbitron:wght@400;700&display=swap"
+    rel="stylesheet"
+>
 
 <style>
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
+
     width: 100%;
     height: 100%;
+
     overflow: hidden;
+
     background: #101018;
+
     font-family: 'Inter', Arial, sans-serif;
 }
 
@@ -39,75 +50,105 @@ html, body {
     position: relative;
 }
 
-/* ОСНОВНАЯ ГАЛЕРЕЯ */
+/* =========================================================
+   ОСНОВНАЯ ГАЛЕРЕЯ
+========================================================= */
+
 .carousel-item {
+    overflow: hidden;
+}
+
+/* ФОН-КАРТИНКА */
+.carousel-bg {
+    position: absolute;
+    inset: 0;
+
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
 
     opacity: 0;
-    filter: blur(12px);
+
+    filter: blur(14px);
+
+    transform: scale(1.04);
 
     transition:
-        opacity 1.2s ease,
-        filter 1.5s ease;
+        opacity 1.5s ease,
+        filter 1.7s ease,
+        transform 2.5s ease;
 }
 
-.carousel-item.loaded {
+/* ПОСЛЕ ЗАГРУЗКИ */
+.carousel-bg.loaded {
     opacity: 1;
+
     filter: blur(0);
+
+    transform: scale(1);
 }
 
+/* ТЁМНОЕ ЗАТЕМНЕНИЕ */
 .carousel-item::before {
     content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
 
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: 0;
 
     background: rgba(0,0,0,0.7);
 
     z-index: 1;
 }
 
+/* BOOTSTRAP FADE */
 .carousel-fade .carousel-item {
-    transition:
-        opacity 2s ease-in-out,
-        filter 1.5s ease;
+    transition: opacity 1.8s ease-in-out;
 }
 
-/* ТЕКСТ */
+/* =========================================================
+   ТЕКСТ
+========================================================= */
+
 .carousel-text-wrapper {
     position: absolute;
+
     top: 25%;
     left: 15%;
 
     width: 50%;
 
-    z-index: 2;
+    z-index: 5;
 
     color: #ffffff;
 }
 
 .carousel-text-wrapper h1 {
     font-size: 3.3em;
+
     margin: 0 0 20px 0;
+
     line-height: 1.2;
+
     font-weight: 600;
 }
 
 .carousel-text-wrapper p {
     font-size: 1.65em;
+
     margin: 0 0 20px 0;
+
     color: #afafaf;
+
     font-weight: 200;
 }
 
-/* КНОПКА */
+/* =========================================================
+   КНОПКА
+========================================================= */
+
 .my-btn {
     display: inline-block;
+
     padding: 18px 36px;
 
     background-color: #ff5136;
@@ -115,25 +156,32 @@ html, body {
 
     text-decoration: none;
 
-    font-family: 'Inter', Arial, sans-serif;
     font-size: 1.2rem;
     font-weight: 600;
 
     border-radius: 10px;
 
+    margin-top: 10px;
+
     transition:
         background-color 0.3s ease,
-        transform 0.3s ease;
-
-    margin-top: 10px;
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
 }
 
 .my-btn:hover {
     background-color: #e0492e;
+
     transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 30px rgba(255,81,54,0.35);
 }
 
-/* ИНДИКАТОРЫ */
+/* =========================================================
+   ИНДИКАТОРЫ
+========================================================= */
+
 .carousel-indicators {
     bottom: 20px;
 }
@@ -144,24 +192,33 @@ html, body {
 
     border-radius: 3px;
 
-    background-color: rgba(255,255,255,0.5);
+    background-color: rgba(255,255,255,0.45);
 
     margin: 0 5px;
 
-    transition: background-color 0.3s;
+    transition:
+        background-color 0.3s ease,
+        transform 0.3s ease;
 }
 
 .carousel-indicators button.active {
     background-color: #ffffff;
+
+    transform: scaleX(1.2);
 }
 
-/* ЧАСЫ */
+/* =========================================================
+   ЧАСЫ
+========================================================= */
+
 #moscow-clock {
     position: absolute;
+
     bottom: 30px;
     right: 30px;
 
     font-family: 'Orbitron', sans-serif;
+
     font-size: 1.5em;
 
     color: #afafaf;
@@ -169,7 +226,10 @@ html, body {
     z-index: 10;
 }
 
-/* МИНИ-ГАЛЕРЕЯ */
+/* =========================================================
+   МИНИ-ГАЛЕРЕЯ
+========================================================= */
+
 #mini-gallery {
     position: absolute;
 
@@ -181,10 +241,13 @@ html, body {
     max-width: 600px;
 
     display: flex;
+
     justify-content: flex-start;
+
     gap: 12px;
 
     opacity: 0;
+
     transition: opacity 1s ease;
 
     z-index: 5;
@@ -192,16 +255,20 @@ html, body {
 
 #mini-gallery .mg-item {
     width: 30%;
+
     aspect-ratio: 9 / 16;
 
     overflow: hidden;
+
     position: relative;
 
     border-radius: 15px;
 
-    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+    box-shadow:
+        0 15px 40px rgba(0,0,0,0.5);
 
-    background: rgba(255,255,255,0.05);
+    background:
+        rgba(255,255,255,0.05);
 }
 
 #mini-gallery .mg-item img {
@@ -212,13 +279,16 @@ html, body {
 
     opacity: 0;
 
+    transform: scale(1.03);
+
     transition:
-        opacity 0.9s ease,
-        transform 1.5s ease;
+        opacity 1s ease,
+        transform 2s ease;
 }
 
 #mini-gallery .mg-item img.loaded {
     opacity: 1;
+
     transform: scale(1);
 }
 </style>
@@ -226,29 +296,56 @@ html, body {
 
 <body>
 
-<div id="carouselExample" class="carousel slide carousel-fade">
+<div
+    id="carouselExample"
+    class="carousel slide carousel-fade"
+>
 
-    <div class="carousel-indicators" id="carousel-indicators"></div>
+    <div
+        class="carousel-indicators"
+        id="carousel-indicators"
+    ></div>
 
-    <div class="carousel-inner" id="carousel-inner"></div>
+    <div
+        class="carousel-inner"
+        id="carousel-inner"
+    ></div>
 
+    <!-- ТЕКСТ -->
     <div class="carousel-text-wrapper">
-        <h1>Minecraft-кинотеатр<br>KINOMURR</h1>
 
-        <p>Тепло и уют словно мы рядом!</p>
+        <h1>
+            Minecraft-кинотеатр<br>
+            KINOMURR
+        </h1>
+
+        <p>
+            Тепло и уют словно мы рядом!
+        </p>
 
         <a href="#" class="my-btn">
             Искать приключения!
         </a>
     </div>
 
+    <!-- ЧАСЫ -->
     <div id="moscow-clock"></div>
 </div>
 
+<!-- МИНИ-ГАЛЕРЕЯ -->
 <div id="mini-gallery">
-    <div class="mg-item"><img src="" alt=""></div>
-    <div class="mg-item"><img src="" alt=""></div>
-    <div class="mg-item"><img src="" alt=""></div>
+
+    <div class="mg-item">
+        <img src="" alt="">
+    </div>
+
+    <div class="mg-item">
+        <img src="" alt="">
+    </div>
+
+    <div class="mg-item">
+        <img src="" alt="">
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -262,231 +359,279 @@ const user = 'programmer4cat';
 const repo = 'my-webdisplays-site';
 const folder = 'background-gallery';
 
-fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
-    .then(r => r.json())
-    .then(files => {
+fetch(
+    `https://api.github.com/repos/${user}/${repo}/contents/${folder}`
+)
+.then(r => r.json())
+.then(files => {
 
-        const carouselInner = document.getElementById('carousel-inner');
-        const indicators = document.getElementById('carousel-indicators');
+    const carouselInner =
+        document.getElementById('carousel-inner');
 
-        files = files.filter(file => file.type === 'file');
+    const indicators =
+        document.getElementById('carousel-indicators');
 
-        /* Перемешивание массива */
-        for (let i = files.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [files[i], files[j]] = [files[j], files[i]];
-        }
+    /* только файлы */
+    files = files.filter(
+        file => file.type === 'file'
+    );
 
-        let carouselStarted = false;
+    /* перемешивание */
+    for (let i = files.length - 1; i > 0; i--) {
 
-        files.forEach((file, index) => {
+        const j =
+            Math.floor(
+                Math.random() * (i + 1)
+            );
 
-            const slide = document.createElement('div');
+        [files[i], files[j]] =
+            [files[j], files[i]];
+    }
 
-            slide.className =
-                'carousel-item' + (index === 0 ? ' active' : '');
+    let carouselStarted = false;
 
-            carouselInner.appendChild(slide);
+    files.forEach((file, index) => {
 
-            /* preload изображения */
-            const img = new Image();
+        /* СЛАЙД */
+        const slide =
+            document.createElement('div');
 
-            img.onload = () => {
+        slide.className =
+            'carousel-item' +
+            (index === 0 ? ' active' : '');
 
-                slide.style.backgroundImage =
-                    `url(${file.download_url})`;
+        /* ФОНОВЫЙ СЛОЙ */
+        const bg =
+            document.createElement('div');
 
-                requestAnimationFrame(() => {
-                    slide.classList.add('loaded');
-                });
+        bg.className = 'carousel-bg';
 
-                /* создаём индикатор */
-                const btn = document.createElement('button');
+        slide.appendChild(bg);
 
-                btn.type = 'button';
+        carouselInner.appendChild(slide);
 
-                btn.setAttribute(
-                    'data-bs-target',
-                    '#carouselExample'
-                );
+        /* PRELOAD */
+        const img = new Image();
 
-                btn.setAttribute(
-                    'data-bs-slide-to',
-                    index
-                );
+        img.onload = () => {
 
-                if (index === 0) {
-                    btn.className = 'active';
-                }
+            bg.style.backgroundImage =
+                `url(${file.download_url})`;
 
-                indicators.appendChild(btn);
+            requestAnimationFrame(() => {
 
-                /* запуск карусели только после первой загрузки */
-                if (!carouselStarted && index === 0) {
+                bg.classList.add('loaded');
 
-                    carouselStarted = true;
+            });
 
-                    const myCarousel =
-                        document.querySelector('#carouselExample');
+            /* ИНДИКАТОР */
+            const btn =
+                document.createElement('button');
 
-                    new bootstrap.Carousel(myCarousel, {
+            btn.type = 'button';
+
+            btn.setAttribute(
+                'data-bs-target',
+                '#carouselExample'
+            );
+
+            btn.setAttribute(
+                'data-bs-slide-to',
+                index
+            );
+
+            if (index === 0) {
+                btn.className = 'active';
+            }
+
+            indicators.appendChild(btn);
+
+            /* запуск carousel */
+            if (!carouselStarted && index === 0) {
+
+                carouselStarted = true;
+
+                const myCarousel =
+                    document.querySelector(
+                        '#carouselExample'
+                    );
+
+                new bootstrap.Carousel(
+                    myCarousel,
+                    {
                         interval: 30000,
                         ride: 'carousel'
-                    });
-                }
-            };
+                    }
+                );
+            }
+        };
 
-            img.src = file.download_url;
-        });
-    })
-    .catch(err => {
-        console.error(
-            'Ошибка загрузки изображений:',
-            err
-        );
+        img.src = file.download_url;
     });
+})
+.catch(err => {
+
+    console.error(
+        'Ошибка загрузки изображений:',
+        err
+    );
+});
 
 /* =========================================================
    МИНИ-ГАЛЕРЕЯ
 ========================================================= */
 
-const MG_USER = "programmer4cat";
-const MG_REPO = "my-webdisplays-site";
-const MG_FOLDER = "mini-gallery";
+const MG_USER = 'programmer4cat';
+const MG_REPO = 'my-webdisplays-site';
+const MG_FOLDER = 'mini-gallery';
 
 const cycleInterval = 15000;
 
-fetch(`https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`)
-    .then(r => r.json())
-    .then(files => {
+fetch(
+    `https://api.github.com/repos/${MG_USER}/${MG_REPO}/contents/${MG_FOLDER}`
+)
+.then(r => r.json())
+.then(files => {
 
-        const images = files
-            .filter(f => f.type === 'file')
-            .map(f => f.download_url);
+    const images = files
+        .filter(f => f.type === 'file')
+        .map(f => f.download_url);
 
-        if (images.length < 3) return;
+    if (images.length < 3) return;
 
-        let pool = [...images];
+    let pool = [...images];
 
-        const chosen = [];
+    const chosen = [];
 
-        for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 3; i++) {
 
-            const idx = Math.floor(Math.random() * pool.length);
-
-            chosen.push(pool[idx]);
-
-            pool.splice(idx, 1);
-        }
-
-        const imgs = document.querySelectorAll(
-            '#mini-gallery .mg-item img'
-        );
-
-        imgs.forEach((img, i) => {
-
-            const preload = new Image();
-
-            preload.onload = () => {
-
-                img.src = chosen[i];
-
-                requestAnimationFrame(() => {
-                    img.classList.add('loaded');
-                });
-            };
-
-            preload.src = chosen[i];
-        });
-
-        setTimeout(() => {
-            document.getElementById(
-                'mini-gallery'
-            ).style.opacity = 1;
-        }, 500);
-
-        function fadeSwap(imgElement, newUrl) {
-
-            const tmp = new Image();
-
-            tmp.onload = () => {
-
-                imgElement.style.opacity = 0;
-
-                setTimeout(() => {
-
-                    imgElement.src = newUrl;
-
-                    requestAnimationFrame(() => {
-                        imgElement.style.opacity = 1;
-                    });
-
-                }, 900);
-            };
-
-            tmp.src = newUrl;
-        }
-
-        function getRandomImage() {
-
-            if (pool.length === 0) {
-                pool = [...images];
-            }
-
-            const idx = Math.floor(
+        const idx =
+            Math.floor(
                 Math.random() * pool.length
             );
 
-            const img = pool[idx];
+        chosen.push(pool[idx]);
 
-            pool.splice(idx, 1);
+        pool.splice(idx, 1);
+    }
 
-            return img;
+    const imgs =
+        document.querySelectorAll(
+            '#mini-gallery .mg-item img'
+        );
+
+    imgs.forEach((img, i) => {
+
+        const preload = new Image();
+
+        preload.onload = () => {
+
+            img.src = chosen[i];
+
+            requestAnimationFrame(() => {
+
+                img.classList.add('loaded');
+
+            });
+        };
+
+        preload.src = chosen[i];
+    });
+
+    setTimeout(() => {
+
+        document.getElementById(
+            'mini-gallery'
+        ).style.opacity = 1;
+
+    }, 500);
+
+    function fadeSwap(imgElement, newUrl) {
+
+        const tmp = new Image();
+
+        tmp.onload = () => {
+
+            imgElement.style.opacity = 0;
+
+            setTimeout(() => {
+
+                imgElement.src = newUrl;
+
+                requestAnimationFrame(() => {
+
+                    imgElement.style.opacity = 1;
+
+                });
+
+            }, 900);
+        };
+
+        tmp.src = newUrl;
+    }
+
+    function getRandomImage() {
+
+        if (pool.length === 0) {
+            pool = [...images];
         }
 
-        function cycleChange() {
-
-            fadeSwap(
-                imgs[0],
-                getRandomImage()
+        const idx =
+            Math.floor(
+                Math.random() * pool.length
             );
 
-            setTimeout(() => {
+        const img = pool[idx];
 
-                fadeSwap(
-                    imgs[1],
-                    getRandomImage()
-                );
+        pool.splice(idx, 1);
 
-            }, 600);
+        return img;
+    }
 
-            setTimeout(() => {
+    function cycleChange() {
 
-                fadeSwap(
-                    imgs[2],
-                    getRandomImage()
-                );
-
-            }, 1200);
-        }
+        fadeSwap(
+            imgs[0],
+            getRandomImage()
+        );
 
         setTimeout(() => {
 
-            cycleChange();
-
-            setInterval(
-                cycleChange,
-                cycleInterval + 2000
+            fadeSwap(
+                imgs[1],
+                getRandomImage()
             );
 
-        }, cycleInterval);
-    })
-    .catch(err => {
-        console.error(
-            'Ошибка мини-галереи:',
-            err
+        }, 600);
+
+        setTimeout(() => {
+
+            fadeSwap(
+                imgs[2],
+                getRandomImage()
+            );
+
+        }, 1200);
+    }
+
+    setTimeout(() => {
+
+        cycleChange();
+
+        setInterval(
+            cycleChange,
+            cycleInterval + 2000
         );
-    });
+
+    }, cycleInterval);
+})
+.catch(err => {
+
+    console.error(
+        'Ошибка мини-галереи:',
+        err
+    );
+});
 
 /* =========================================================
    ЧАСЫ
