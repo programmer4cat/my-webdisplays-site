@@ -192,10 +192,19 @@ const folder = 'background-gallery';
 fetch(`https://api.github.com/repos/${user}/${repo}/contents/${folder}`)
   .then(r => r.json())
   .then(files => {
-    const carouselInner = document.getElementById('carousel-inner');
-    const indicators = document.getElementById('carousel-indicators');
+  const carouselInner = document.getElementById('carousel-inner');
+  const indicators = document.getElementById('carousel-indicators');
 
-    files.forEach((file, index) => {
+  // оставляем только файлы
+  files = files.filter(file => file.type === 'file');
+
+  // перемешивание массива (Fisher-Yates)
+  for (let i = files.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [files[i], files[j]] = [files[j], files[i]];
+  }
+
+  files.forEach((file, index) => {
       if (file.type !== 'file') return;
 
       const slide = document.createElement('div');
