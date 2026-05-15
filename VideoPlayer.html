@@ -252,8 +252,22 @@
     }
 
     .video-controls.hidden-ui {
-
       opacity: 0;
+      pointer-events: none;
+    }
+
+    .video-title {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+      max-width: 80%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       pointer-events: none;
     }
 
@@ -481,6 +495,8 @@
         <!-- ========================= -->
 
         <div class="video-controls" id="videoControls">
+          
+          <div class="video-title" id="videoTitle"></div>
 
           <!-- Progress Row (Must be on top) -->
           <div class="progress-wrapper">
@@ -621,6 +637,9 @@
 
     const timeDisplay =
       document.getElementById('timeDisplay');
+
+    const videoTitle =
+      document.getElementById('videoTitle');
 
     const buttonsContainer =
       document.querySelector('.buttons');
@@ -901,10 +920,21 @@
           await response.json();
 
         if (!data.href) {
+          throw new Error('Не удалось получить ссылку');
+        }
 
-          throw new Error(
-            'Не удалось получить ссылку'
-          );
+        // Fetch Metadata (Filename)
+        try {
+          const metaApi = 'https://cloud-api.yandex.net/v1/disk/public/resources?public_key=' + encodeURIComponent(publicUrl);
+          const metaResp = await fetch(metaApi);
+          const metaData = await metaResp.json();
+          if (metaData.name) {
+            videoTitle.textContent = metaData.name;
+            document.title = metaData.name + " - Yandex Player";
+          }
+        } catch (e) {
+          console.log("Metadata fetch failed", e);
+          videoTitle.textContent = "Видео с Яндекс Диска";
         }
 
         video.src = data.href;
