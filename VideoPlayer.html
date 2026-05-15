@@ -103,14 +103,38 @@
     }
 
     .top-panel input {
-      flex: 1;
-      min-width: 200px;
+      width: 100%;
       background: #2b2b2b;
       color: white;
       border: none;
       border-radius: 12px;
-      padding: 14px;
+      padding: 14px 45px 14px 14px; /* Space for paste button */
       font-size: 14px;
+    }
+
+    .input-group {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .paste-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.05);
+      border: none;
+      color: white;
+      border-radius: 6px;
+      padding: 6px 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.2s;
+    }
+
+    .paste-btn:hover {
+      background: rgba(255,255,255,0.15);
     }
 
     .top-panel #loadBtn {
@@ -421,8 +445,14 @@
 
       <div class="top-panel">
         <div class="inputs-row">
-          <input id="urlInput" type="text" placeholder="Ссылка на видео (Яндекс Диск)" />
-          <input id="audioInput" type="text" placeholder="Ссылка на звук (опционально)" />
+          <div class="input-group">
+            <input id="urlInput" type="text" placeholder="Ссылка на видео (Яндекс Диск)" />
+            <button class="paste-btn" onclick="pasteToInput('urlInput')" title="Вставить">📋</button>
+          </div>
+          <div class="input-group">
+            <input id="audioInput" type="text" placeholder="Ссылка на звук (опционально)" />
+            <button class="paste-btn" onclick="pasteToInput('audioInput')" title="Вставить">📋</button>
+          </div>
         </div>
         <button id="loadBtn">
           Загрузить медиа
@@ -832,8 +862,15 @@
     // =========================
 
     async function loadVideo(publicUrl) {
-
       try {
+        // Останавливаем старое видео и звук перед новой загрузкой
+        video.pause();
+        video.src = "";
+        externalAudio.pause();
+        externalAudio.src = "";
+        
+        const continueBtn = document.getElementById('continueBtn');
+        if (continueBtn) continueBtn.remove();
 
         loader.classList.remove(
           'hidden'
@@ -943,20 +980,36 @@
     };
 
     // =========================
-    // AUTO LOAD LAST VIDEO
+    // AUTO LOAD (URL PARAMS OR LAST VIDEO)
     // =========================
 
-    const lastVideoUrl =
-      localStorage.getItem(
-        'last-video-url'
-      );
+    const params = new URLSearchParams(window.location.search);
+    const vParam = params.get('v');
+    const aParam = params.get('a');
 
-    if (lastVideoUrl) {
+    if (vParam) {
+      urlInput.value = vParam;
+      if (aParam) audioInput.value = aParam;
+      loadVideo(vParam);
+    } else {
+      const lastVideoUrl = localStorage.getItem('last-video-url');
+      if (lastVideoUrl) {
+        urlInput.value = lastVideoUrl;
+        loadVideo(lastVideoUrl);
+      }
+    }
 
-      urlInput.value =
-        lastVideoUrl;
+    // =========================
+    // PASTE FROM CLIPBOARD
+    // =========================
 
-      loadVideo(lastVideoUrl);
+    async function pasteToInput(inputId) {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById(inputId).value = text;
+      } catch (err) {
+        console.error('Failed to read clipboard:', err);
+      }
     }
 
     // =========================
