@@ -208,7 +208,7 @@
                 <div class="file-meta">${isVideo ? 'Видео' : 'Файл'} • ${sizeMb} MB</div>
               </div>
             </div>
-            ${isVideo ? `<a href="${playerUrl}" class="play-btn">Смотреть</a>` : ''}
+            ${isVideo ? `<a href="${playerUrl}" class="play-btn" target="_blank">Смотреть</a>` : ''}
           `;
           listDiv.appendChild(div);
         });
