@@ -61,8 +61,28 @@
     }
     .file-list {
       margin-top: 30px;
-      display: grid;
+      display: flex;
+      flex-direction: column;
       gap: 10px;
+      max-height: 65vh;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    /* Custom scrollbar */
+    .file-list::-webkit-scrollbar {
+      width: 8px;
+    }
+    .file-list::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+    }
+    .file-list::-webkit-scrollbar-thumb {
+      background: #9300ff;
+      border-radius: 4px;
+    }
+    .file-list::-webkit-scrollbar-thumb:hover {
+      background: #a62eff;
     }
     .file-item {
       background: rgba(255, 255, 255, 0.03);
