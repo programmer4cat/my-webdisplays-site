@@ -6,6 +6,7 @@
   <meta name="referrer" content="no-referrer" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Yandex Video Player v2.0 - Playlist Edition</title>
+  <link rel="icon" type="image/png" href="favicon-512.png" />
   <style>
     :root {
       --accent: #9300ff;
@@ -808,7 +809,7 @@
     function updateMuteIcon() {
       const vol = externalAudio.src ? externalAudio.volume : video.volume;
       const isMuted = externalAudio.src ? externalAudio.muted : video.muted;
-      
+
       // Сохраняем состояние
       localStorage.setItem('player-volume', vol);
       localStorage.setItem('player-muted', isMuted);
@@ -951,18 +952,26 @@
       if (!document.fullscreenElement) await videoWrap.requestFullscreen(); else await document.exitFullscreen();
       showUI();
     };
+    function updateBufferProgress() {
+      if (!video.duration || video.buffered.length === 0) return;
+      let bufferedEnd = video.currentTime;
+      for (let i = 0; i < video.buffered.length; i++) {
+        if (video.currentTime >= video.buffered.start(i) && video.currentTime <= video.buffered.end(i)) {
+          bufferedEnd = video.buffered.end(i);
+          break;
+        }
+      }
+      bufferBar.style.width = (bufferedEnd / video.duration * 100) + '%';
+    }
+
     video.ontimeupdate = () => {
       if (!video.duration) return;
       progressBar.style.width = (video.currentTime / video.duration * 100) + '%';
       updateTimeDisplay();
+      updateBufferProgress();
     };
 
-    video.onprogress = () => {
-      if (!video.duration || video.buffered.length === 0) return;
-      const bufferedEnd = video.buffered.end(video.buffered.length - 1);
-      const width = (bufferedEnd / video.duration) * 100;
-      bufferBar.style.width = width + '%';
-    };
+    video.onprogress = updateBufferProgress;
 
     video.onloadedmetadata = updateTimeDisplay;
     progressContainer.onclick = (e) => {
