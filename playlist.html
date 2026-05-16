@@ -28,7 +28,7 @@
       overflow: hidden;
     }
 
-    /* MAIN CONTENT (PLAYER) */
+    /* MAIN CONTENT AREA */
     .main-content {
       flex: 1;
       display: flex;
@@ -36,23 +36,6 @@
       justify-content: center;
       padding: 24px;
       position: relative;
-    }
-
-    .player-wrap {
-      width: 100%;
-      max-width: 1200px;
-      aspect-ratio: 16 / 9;
-    }
-
-    .player {
-      background: #000;
-      border-radius: 12px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
-      position: relative;
-      height: 100%;
     }
 
     /* SIDEBAR (PLAYLIST) */
@@ -104,7 +87,13 @@
       border: 1px solid transparent;
     }
 
-    .playlist-item:hover {
+    /* Состояние проверки */
+    .playlist-item.pending {
+      opacity: 0.4;
+      cursor: wait;
+    }
+
+    .playlist-item:hover:not(.pending):not(.locked) {
       background: rgba(255, 255, 255, 0.08);
       transform: translateX(-5px);
     }
@@ -115,8 +104,14 @@
       box-shadow: 0 0 15px rgba(147, 0, 255, 0.2);
     }
 
+    .playlist-item.locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .playlist-item .icon { font-size: 22px; opacity: 0.7; }
     .playlist-item.active .icon { opacity: 1; color: var(--accent); }
+    .playlist-item.locked .icon { color: #ff4444; }
 
     .playlist-item .info { flex: 1; overflow: hidden; }
     .playlist-item .name {
@@ -129,7 +124,24 @@
     }
     .playlist-item .meta { font-size: 11px; color: #777; }
 
-    /* PLAYER COMPONENTS (FROM V1.9) */
+    /* PLAYER STYLES (FROM V1.9) */
+    .player-wrap {
+      width: 100%;
+      max-width: 1200px;
+      aspect-ratio: 16 / 9;
+    }
+
+    .player {
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
+      position: relative;
+      height: 100%;
+    }
+
     .video-wrap {
       position: relative;
       background: black;
@@ -215,7 +227,7 @@
       top: 0; left: 0; right: 0;
       padding: 25px 25px 80px 25px;
       background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
-      font-size: 22px;
+      font-size: 24px;
       font-weight: bold;
       color: white;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
@@ -231,13 +243,13 @@
 
     .progress-wrapper { padding: 0 15px; margin-bottom: 5px; }
     .progress-container {
-      height: 6px;
+      height: 8px;
       background: rgba(255, 255, 255, 0.2);
       cursor: pointer;
       position: relative;
       transition: height 0.1s;
     }
-    .progress-container:hover { height: 10px; }
+    .progress-container:hover { height: 12px; }
     .progress-bar { height: 100%; width: 0%; background: var(--accent); }
 
     .controls-row {
@@ -260,7 +272,7 @@
     .icon-btn svg { width: 30px; height: 30px; }
     .icon-btn:hover { opacity: 1; transform: scale(1.1); }
 
-    .time-display { font-size: 15px; color: #eee; font-family: monospace; margin-left: 10px; }
+    .time-display { font-size: 16px; color: #eee; font-family: monospace; margin-left: 10px; }
 
     #volumeSlider {
       width: 100px; height: 6px; -webkit-appearance: none;
@@ -268,7 +280,7 @@
       outline: none; cursor: pointer;
     }
     #volumeSlider::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 14px; height: 14px;
+      -webkit-appearance: none; width: 16px; height: 16px;
       background: white; border-radius: 50%; cursor: pointer;
     }
 
@@ -285,15 +297,15 @@
       filter: drop-shadow(0 0 20px rgba(147, 0, 255, 0.4));
     }
     .big-play-btn:hover { transform: scale(1.15); filter: drop-shadow(0 0 30px rgba(147, 0, 255, 0.6)); }
-    .big-play-btn svg { width: 110px; height: 110px; }
+    .big-play-btn svg { width: 120px; height: 120px; }
 
     #continueBtn {
-      padding: 12px 25px; font-size: 15px; font-weight: bold;
-      background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+      padding: 12px 20px; font-size: 16px; font-weight: bold;
+      background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(5px);
       color: white; border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 30px; cursor: pointer; transition: all 0.2s; margin-top: 20px;
+      border-radius: 25px; cursor: pointer; transition: all 0.2s; margin-top: 20px;
     }
-    #continueBtn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+    #continueBtn:hover { background: rgba(255, 255, 255, 0.25); transform: scale(1.05); }
 
     .video-wrap.dimmed::after {
       content: ''; position: absolute; inset: 0;
@@ -401,6 +413,7 @@
     const folderNameElem = document.getElementById('folderName');
 
     let currentVideoKey = null;
+    let currentFolderKey = null;
     let uiHideTimeout;
     let hasStartedPlaying = false;
     let menuAlreadyShown = false;
@@ -412,7 +425,8 @@
 
     async function loadPlaylist(folderUrl) {
       try {
-        const api = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(folderUrl)}&limit=100&fields=name,_embedded.items.name,_embedded.items.public_url,_embedded.items.public_key,_embedded.items.size,_embedded.items.media_type`;
+        currentFolderKey = 'folder-last-video-' + folderUrl;
+        const api = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(folderUrl)}&limit=100&fields=name,public_key,_embedded.items.name,_embedded.items.public_url,_embedded.items.public_key,_embedded.items.size,_embedded.items.media_type`;
         const resp = await fetch(api);
         const data = await resp.json();
         if (data.error) throw new Error(data.message);
@@ -421,10 +435,17 @@
         playlistItems = data._embedded.items.filter(item => item.media_type === 'video');
 
         renderPlaylist();
+        checkAllFilesAccess(); // Запускаем проверку доступа
 
         const p = new URLSearchParams(window.location.search);
         if (!p.get('v') && playlistItems.length > 0) {
-          playFromPlaylist(0);
+          const lastVideoKey = localStorage.getItem(currentFolderKey);
+          let targetIndex = 0;
+          if (lastVideoKey) {
+            const index = playlistItems.findIndex(item => (item.public_url || item.public_key) === lastVideoKey);
+            if (index !== -1) targetIndex = index;
+          }
+          playFromPlaylist(targetIndex);
         }
       } catch (e) {
         playlistDiv.innerHTML = `<div style="color:red; padding:20px;">Ошибка: ${e.message}</div>`;
@@ -435,23 +456,87 @@
       playlistDiv.innerHTML = '';
       playlistItems.forEach((item, index) => {
         const div = document.createElement('div');
-        div.className = `playlist-item ${index === currentIndex ? 'active' : ''}`;
-        div.onclick = () => playFromPlaylist(index);
+        div.id = `item-${index}`;
+        // Все файлы по умолчанию в режиме ожидания (pending)
+        div.className = `playlist-item pending ${index === currentIndex ? 'active' : ''}`;
+        
+        div.onclick = () => {
+           if (div.classList.contains('pending')) return; // Игнорируем пока идет проверка
+           if (div.classList.contains('locked')) {
+             alert('Доступ к этому файлу закрыт или заблокирован Яндексом.');
+             return;
+           }
+           playFromPlaylist(index);
+        };
         const sizeMb = (item.size / (1024 * 1024)).toFixed(1);
-        div.innerHTML = `<div class="icon">🎬</div><div class="info"><div class="name">${item.name}</div><div class="meta">${sizeMb} MB</div></div>`;
+        div.innerHTML = `
+          <div class="icon" id="icon-${index}">⏳</div>
+          <div class="info">
+            <div class="name" title="${item.name}">${item.name}</div>
+            <div class="meta">${sizeMb} MB</div>
+          </div>
+        `;
         playlistDiv.appendChild(div);
       });
+    }
+
+    async function checkAllFilesAccess() {
+      await new Promise(r => setTimeout(r, 500));
+      console.log(`Начинаем проверку всех видео (всего в списке: ${playlistItems.length})...`);
+      
+      for (let i = 0; i < playlistItems.length; i++) {
+        const item = playlistItems[i];
+        const iconElem = document.getElementById(`icon-${i}`);
+        const itemElem = document.getElementById(`item-${i}`);
+        
+        try {
+          const publicSrc = item.public_url || item.public_key;
+          const api = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${encodeURIComponent(publicSrc)}&_=${Date.now()}`;
+          
+          const resp = await fetch(api);
+          const data = await resp.json();
+          
+          if (!resp.ok || data.error || !data.href) {
+            throw new Error('Metadata restricted');
+          }
+
+          const fileCheck = await fetch(data.href, { headers: { 'Range': 'bytes=0-0' } });
+          if (!fileCheck.ok && fileCheck.status !== 206) {
+            throw new Error(`File restricted (${fileCheck.status})`);
+          }
+
+          // УСПЕХ: Убираем режим ожидания и ставим иконку видео
+          if (itemElem) itemElem.classList.remove('pending');
+          if (iconElem) iconElem.innerHTML = '🎬';
+          
+          console.log(`✅ [${i+1}/${playlistItems.length}] Доступ подтвержден: "${item.name}"`);
+          
+        } catch (e) {
+          console.warn(`❌ [${i+1}/${playlistItems.length}] Файл "${item.name}" НЕДОСТУПЕН:`, e.message);
+          // ОШИБКА: Убираем ожидание, ставим замок
+          if (itemElem) itemElem.classList.remove('pending');
+          if (iconElem) iconElem.innerHTML = '🔒';
+          if (itemElem) {
+            itemElem.classList.add('locked');
+            itemElem.title = 'Доступ закрыт или заблокирован';
+          }
+        }
+        
+        await new Promise(r => setTimeout(r, 150)); // Чуть ускорим проверку
+      }
+      console.log('Проверка всех файлов завершена.');
     }
 
     function playFromPlaylist(index) {
       if (index < 0 || index >= playlistItems.length) return;
       currentIndex = index;
       const item = playlistItems[index];
+      if (currentFolderKey) localStorage.setItem(currentFolderKey, item.public_url || item.public_key);
       renderPlaylist();
       loadVideo(item.public_url || item.public_key);
     }
 
-    // --- PLAYER CORE LOGIC (FROM V1.9) ---
+    // --- PLAYER CORE LOGIC ---
 
     function showUI() {
       videoControls.classList.remove('hidden-ui');
@@ -566,7 +651,7 @@
 
         video.src = data.href;
         
-        // Single video mode external audio (optional)
+        // Single mode external audio
         const aParam = new URLSearchParams(window.location.search).get('a');
         if (aParam && currentIndex === -1) {
            const aApi = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=' + encodeURIComponent(aParam);
