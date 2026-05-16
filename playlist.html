@@ -432,10 +432,13 @@
         if (data.error) throw new Error(data.message);
 
         folderNameElem.textContent = data.name || 'Плейлист';
-        playlistItems = data._embedded.items.filter(item => item.media_type === 'video');
+        // Инициализируем элементы со статусом pending
+        playlistItems = data._embedded.items
+          .filter(item => item.media_type === 'video')
+          .map(item => ({ ...item, status: 'pending' }));
 
         renderPlaylist();
-        checkAllFilesAccess(); // Запускаем проверку доступа
+        checkAllFilesAccess();
 
         const p = new URLSearchParams(window.location.search);
         if (!p.get('v') && playlistItems.length > 0) {
@@ -457,12 +460,16 @@
       playlistItems.forEach((item, index) => {
         const div = document.createElement('div');
         div.id = `item-${index}`;
-        // Все файлы по умолчанию в режиме ожидания (pending)
-        div.className = `playlist-item pending ${index === currentIndex ? 'active' : ''}`;
+        
+        // Используем сохраненный статус для отрисовки
+        const statusClass = item.status === 'locked' ? 'locked' : (item.status === 'pending' ? 'pending' : '');
+        div.className = `playlist-item ${statusClass} ${index === currentIndex ? 'active' : ''}`;
+        
+        const icon = item.status === 'locked' ? '🔒' : (item.status === 'pending' ? '⏳' : '🎬');
         
         div.onclick = () => {
-           if (div.classList.contains('pending')) return; // Игнорируем пока идет проверка
-           if (div.classList.contains('locked')) {
+           if (item.status === 'pending') return;
+           if (item.status === 'locked') {
              alert('Доступ к этому файлу закрыт или заблокирован Яндексом.');
              return;
            }
@@ -470,7 +477,7 @@
         };
         const sizeMb = (item.size / (1024 * 1024)).toFixed(1);
         div.innerHTML = `
-          <div class="icon" id="icon-${index}">⏳</div>
+          <div class="icon" id="icon-${index}">${icon}</div>
           <div class="info">
             <div class="name" title="${item.name}">${item.name}</div>
             <div class="meta">${sizeMb} MB</div>
@@ -482,12 +489,9 @@
 
     async function checkAllFilesAccess() {
       await new Promise(r => setTimeout(r, 500));
-      console.log(`Начинаем проверку всех видео (всего в списке: ${playlistItems.length})...`);
       
       for (let i = 0; i < playlistItems.length; i++) {
         const item = playlistItems[i];
-        const iconElem = document.getElementById(`icon-${i}`);
-        const itemElem = document.getElementById(`item-${i}`);
         
         try {
           const publicSrc = item.public_url || item.public_key;
@@ -496,35 +500,33 @@
           const resp = await fetch(api);
           const data = await resp.json();
           
-          if (!resp.ok || data.error || !data.href) {
-            throw new Error('Metadata restricted');
-          }
+          if (!resp.ok || data.error || !data.href) throw new Error('Restricted');
 
           const fileCheck = await fetch(data.href, { headers: { 'Range': 'bytes=0-0' } });
-          if (!fileCheck.ok && fileCheck.status !== 206) {
-            throw new Error(`File restricted (${fileCheck.status})`);
-          }
+          if (!fileCheck.ok && fileCheck.status !== 206) throw new Error('Blocked');
 
-          // УСПЕХ: Убираем режим ожидания и ставим иконку видео
+          // Успех
+          item.status = 'ready';
+          
+          // Обновляем только конкретный элемент в DOM, чтобы не перерисовывать весь список
+          const itemElem = document.getElementById(`item-${i}`);
+          const iconElem = document.getElementById(`icon-${i}`);
           if (itemElem) itemElem.classList.remove('pending');
           if (iconElem) iconElem.innerHTML = '🎬';
           
-          console.log(`✅ [${i+1}/${playlistItems.length}] Доступ подтвержден: "${item.name}"`);
-          
         } catch (e) {
-          console.warn(`❌ [${i+1}/${playlistItems.length}] Файл "${item.name}" НЕДОСТУПЕН:`, e.message);
-          // ОШИБКА: Убираем ожидание, ставим замок
-          if (itemElem) itemElem.classList.remove('pending');
-          if (iconElem) iconElem.innerHTML = '🔒';
+          item.status = 'locked';
+          const itemElem = document.getElementById(`item-${i}`);
+          const iconElem = document.getElementById(`icon-${i}`);
           if (itemElem) {
+            itemElem.classList.remove('pending');
             itemElem.classList.add('locked');
-            itemElem.title = 'Доступ закрыт или заблокирован';
           }
+          if (iconElem) iconElem.innerHTML = '🔒';
         }
         
-        await new Promise(r => setTimeout(r, 150)); // Чуть ускорим проверку
+        await new Promise(r => setTimeout(r, 150));
       }
-      console.log('Проверка всех файлов завершена.');
     }
 
     function playFromPlaylist(index) {
