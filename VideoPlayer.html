@@ -5,58 +5,38 @@
 
   <meta charset="UTF-8" />
   <meta name="referrer" content="no-referrer" />
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>
-    Yandex Video Player
-  </title>
+  <title>Yandex Video Player</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
-
       margin: 0;
       min-height: 100vh;
-
       display: flex;
       align-items: center;
       justify-content: center;
-
       background: #111;
       color: white;
-
       font-family: Arial, sans-serif;
-
       padding: 24px;
     }
 
-    .player-wrap {
-
-      width: min(980px, 96vw);
-    }
+    .player-wrap { width: min(980px, 96vw); }
 
     .player {
       background: #000;
       border-radius: 12px;
       overflow: hidden;
-
       display: flex;
       flex-direction: column;
-
-      box-shadow:
-        0 20px 60px rgba(0, 0, 0, .45);
-
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
       position: relative;
     }
 
-    /* ========================= */
     /* FULLSCREEN */
-    /* ========================= */
-
     .player:fullscreen {
       background: #000;
       border-radius: 0;
@@ -66,205 +46,120 @@
       height: 100vh;
     }
 
-    .player:fullscreen .top-panel,
-    .player:fullscreen .controls {
-      display: none;
+    .player:fullscreen .video-wrap {
+      width: 100vw;
+      height: 100vh;
     }
 
-    .player:-webkit-full-screen {
-      background: #000;
-      border-radius: 0;
-      justify-content: center;
-    }
-
-    .player:-webkit-full-screen .top-panel,
-    .player:-webkit-full-screen .controls {
-      display: none;
-    }
-
-    /* ========================= */
-    /* TOP PANEL */
-    /* ========================= */
-
-    .top-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 20px;
-      border-bottom: 1px solid rgba(255, 255, 255, .08);
-      background: #1a1a1a;
-      z-index: 10;
-    }
-
-    .inputs-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .top-panel input {
-      width: 100%;
-      background: #2b2b2b;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 14px 45px 14px 14px;
-      /* Space for paste button */
-      font-size: 14px;
-    }
-
-    .input-group {
-      position: relative;
-      flex: 1;
-      min-width: 200px;
-    }
-
-    .paste-btn {
+    /* DIMMING OVERLAY FOR CONTINUE BTN */
+    .video-wrap.dimmed::after {
+      content: '';
       position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.05);
-      border: none;
-      color: white;
-      border-radius: 6px;
-      padding: 6px 8px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background 0.2s;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 90;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
     }
 
-    .paste-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .top-panel #loadBtn {
-      align-self: flex-end;
-    }
-
-    /* ========================= */
-    /* VIDEO */
-    /* ========================= */
-
+    /* VIDEO AREA */
     .video-wrap {
-
       position: relative;
       background: black;
       cursor: pointer;
-
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-
       aspect-ratio: 16 / 9;
       width: 100%;
-
       overflow: hidden;
     }
 
     video {
-
       max-width: 100%;
       max-height: 100%;
       display: block;
-
       background: black;
     }
 
     .loader {
-
       position: absolute;
       inset: 0;
-
       display: flex;
       align-items: center;
       justify-content: center;
-
-      background:
-        rgba(0, 0, 0, .6);
-
-      backdrop-filter:
-        blur(4px);
-
-      z-index: 30;
-
+      background: rgba(0, 0, 0, .3);
+      z-index: 150;
       font-size: 18px;
+      pointer-events: none;
     }
 
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none !important; }
 
-    /* ========================= */
-    /* PLAY OVERLAY */
-    /* ========================= */
-
-    .play-overlay {
-
+    /* POSTER LAYER */
+    .poster-layer {
       position: absolute;
       inset: 0;
+      background-color: black;
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: 15;
+      transition: opacity 0.6s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
 
+    .poster-layer.visible { opacity: 1; }
+
+    /* PLAY OVERLAY */
+    .play-overlay {
+      position: absolute;
+      inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-
       pointer-events: none;
-
       opacity: 0;
       transition: .2s;
-
-      font-size: 80px;
-
-      background:
-        rgba(0, 0, 0, .15);
-
+      color: #9300ff;
+      background: rgba(0, 0, 0, .15);
       z-index: 20;
     }
 
-    .play-overlay.show {
-
-      opacity: 1;
+    .play-overlay svg {
+      width: 80px;
+      height: 80px;
     }
 
-    /* ========================= */
-    /* NEW VIDEO CONTROLS */
-    /* ========================= */
+    .play-overlay.show { opacity: 1; }
 
+    /* VIDEO CONTROLS */
     .video-controls {
-
       position: absolute;
-
       left: 0;
       right: 0;
       bottom: 0;
-
       display: flex;
       flex-direction: column;
-
-      z-index: 40;
-
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-
-      padding: 20px 0 0 0;
-
+      z-index: 110;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 70%, transparent 100%);
+      padding: 30px 0 0 0; /* Reduced top padding as requested */
       opacity: 1;
       transition: opacity .3s;
     }
 
-    .video-controls.hidden-ui {
-      opacity: 0;
-      pointer-events: none;
-    }
+    .video-controls.hidden-ui { opacity: 0; pointer-events: none; }
 
     .video-title {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      padding: 20px 20px 60px 20px;
-      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
-      font-size: 18px;
+      padding: 25px 25px 80px 25px;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+      font-size: 24px;
       font-weight: bold;
       color: white;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
@@ -276,15 +171,9 @@
       pointer-events: none;
     }
 
-    .video-title.hidden-ui {
-      opacity: 0;
-    }
+    .video-title.hidden-ui { opacity: 0; }
 
-    /* PROGRESS BAR */
-    .progress-wrapper {
-      padding: 0 15px;
-      margin-bottom: 5px;
-    }
+    .progress-wrapper { padding: 0 15px; margin-bottom: 5px; }
 
     .progress-container {
       height: 8px;
@@ -294,18 +183,10 @@
       transition: height 0.1s;
     }
 
-    .progress-container:hover {
-      height: 12px;
-    }
+    .progress-container:hover { height: 12px; }
 
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: #9300ff;
-      /* Purple as requested */
-    }
+    .progress-bar { height: 100%; width: 0%; background: #9300ff; }
 
-    /* CONTROLS ROW */
     .controls-row {
       display: flex;
       align-items: center;
@@ -313,18 +194,19 @@
       padding: 5px 15px 15px 15px;
     }
 
-    .left-controls,
-    .right-controls {
+    .left-controls, .right-controls { display: flex; align-items: center; gap: 8px; }
+    
+    .seek-group {
       display: flex;
-      align-items: center;
-      gap: 15px;
+      gap: 2px;
+      margin-right: 5px;
     }
 
     .icon-btn {
       background: none;
       border: none;
       color: white;
-      font-size: 20px;
+      font-size: 24px;
       padding: 5px;
       cursor: pointer;
       opacity: 0.9;
@@ -332,126 +214,82 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
+      width: 48px;
+      height: 48px;
     }
 
-    .icon-btn:hover {
-      opacity: 1;
-      transform: scale(1.1);
-      background: none;
-    }
+    .icon-btn svg { width: 30px; height: 30px; }
 
-    .time-display {
-      font-size: 14px;
-      color: #eee;
-      font-family: monospace;
-      margin-left: 5px;
-    }
+    .icon-btn:hover { opacity: 1; transform: scale(1.1); }
 
-    /* VOLUME SLIDER */
+    .time-display { font-size: 16px; color: #eee; font-family: monospace; margin-left: 10px; }
+
     #volumeSlider {
-      width: 60px;
-      height: 4px;
+      width: 100px;
+      height: 6px;
       -webkit-appearance: none;
       background: rgba(255, 255, 255, 0.3);
-      border-radius: 2px;
+      border-radius: 3px;
       outline: none;
       cursor: pointer;
     }
 
     #volumeSlider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 12px;
-      height: 12px;
+      width: 16px;
+      height: 16px;
       background: white;
       border-radius: 50%;
       cursor: pointer;
     }
 
-    /* ========================= */
-    /* EXTERNAL CONTROLS (for non-fullscreen) */
-    /* ========================= */
+    #continueBtn {
+      padding: 12px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(5px);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 20px;
+    }
 
-    .controls {
+    #continueBtn:hover { background: rgba(255, 255, 255, 0.25); transform: scale(1.05); }
 
-      padding: 20px;
+    /* START MENU CONTAINER */
+    .start-menu {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 100;
       display: flex;
       flex-direction: column;
-      gap: 18px;
-      background: #1a1a1a;
-    }
-
-    .buttons {
-
-      display: flex;
-      flex-wrap: wrap;
-
-      gap: 12px;
       align-items: center;
+      transition: opacity 0.4s ease;
     }
 
-    button {
-
+    .big-play-btn {
+      background: none;
       border: none;
-      border-radius: 12px;
-
-      padding: 12px 18px;
-
-      background: #2c2c2c;
-      color: white;
-
+      color: #9300ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-
-      transition: .2s;
-
-      font-size: 14px;
+      transition: all 0.3s;
+      filter: drop-shadow(0 0 20px rgba(147, 0, 255, 0.4));
     }
 
-    button:hover {
-
-      background: #3a3a3a;
+    .big-play-btn:hover {
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 30px rgba(147, 0, 255, 0.6));
     }
 
-    #continueBtn {
-
-      background: #3d5afe;
-    }
-
-    #continueBtn:hover {
-
-      background: #5670ff;
-    }
-
-    .time-select {
-
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-
-      align-items: center;
-    }
-
-    select {
-
-      background: #2b2b2b;
-      color: white;
-
-      border: none;
-      border-radius: 10px;
-
-      padding: 12px;
-
-      min-width: 180px;
-
-      font-size: 14px;
-    }
-
-    .status {
-
-      font-size: 14px;
-      opacity: .7;
-    }
+    .big-play-btn svg { width: 120px; height: 120px; }
   </style>
 
 </head>
@@ -459,41 +297,18 @@
 <body>
 
   <div class="player-wrap">
-
     <div class="player" id="player">
 
-      <!-- ========================= -->
-      <!-- TOP PANEL -->
-      <!-- ========================= -->
-
-      <div class="top-panel">
-        <div class="inputs-row">
-          <div class="input-group">
-            <input id="urlInput" type="text" placeholder="Ссылка на видео (Яндекс Диск)" />
-            <button class="paste-btn" onclick="pasteToInput('urlInput')" title="Вставить">📋</button>
-          </div>
-          <div class="input-group">
-            <input id="audioInput" type="text" placeholder="Ссылка на звук (опционально)" />
-            <button class="paste-btn" onclick="pasteToInput('audioInput')" title="Вставить">📋</button>
-          </div>
-        </div>
-        <button id="loadBtn">
-          Загрузить медиа
-        </button>
-      </div>
-
-      <!-- ========================= -->
-      <!-- VIDEO -->
-      <!-- ========================= -->
-
       <div class="video-wrap" id="videoWrap">
+        <div class="loader hidden" id="loader">Загружаем...</div>
+        <div class="play-overlay" id="playOverlay"></div>
+        <div class="poster-layer" id="posterLayer"></div>
 
-        <div class="loader hidden" id="loader">
-          Загружаем видео...
-        </div>
-
-        <div class="play-overlay" id="playOverlay">
-          ⏸
+        <div id="startMenu" class="start-menu hidden">
+          <button id="bigPlayBtn" class="big-play-btn" title="Начать сначала">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button id="continueBtn" class="hidden">Продолжить</button>
         </div>
 
         <video id="video"></video>
@@ -501,862 +316,285 @@
 
         <div class="video-title" id="videoTitle"></div>
 
-        <!-- ========================= -->
-        <!-- NEW VIDEO CONTROLS -->
-        <!-- ========================= -->
-
         <div class="video-controls" id="videoControls">
-
-          <!-- Progress Row (Must be on top) -->
           <div class="progress-wrapper">
             <div class="progress-container" id="progressContainer">
               <div class="progress-bar" id="progressBar"></div>
             </div>
           </div>
 
-          <!-- Buttons Row -->
           <div class="controls-row">
             <div class="left-controls">
-              <button id="mainPlayBtn" class="icon-btn">▶</button>
-              <button id="muteBtn" class="icon-btn">🔊</button>
+              <button id="mainPlayBtn" class="icon-btn" title="Воспроизвести">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+              
+              <div class="seek-group">
+                <button id="backBtn" class="icon-btn" title="Назад 10 сек">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+                </button>
+
+                <button id="forwardBtn" class="icon-btn" title="Вперед 10 сек">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+                </button>
+              </div>
+
+              <button id="muteBtn" class="icon-btn" title="Громкость">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+              </button>
               <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1">
               <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
             </div>
-
             <div class="right-controls">
               <button id="fullscreenBtn" class="icon-btn">⛶</button>
             </div>
           </div>
-
         </div>
-
-      </div>
-
-      <!-- ========================= -->
-      <!-- CONTROLS -->
-      <!-- ========================= -->
-
-      <div class="controls">
-
-        <div class="buttons">
-
-          <button id="playPauseBtn">
-            ▶ Play
-          </button>
-
-          <button id="backBtn">
-            ⏪ -10 сек
-          </button>
-
-          <button id="forwardBtn">
-            ⏩ +10 сек
-          </button>
-
-        </div>
-
-        <!-- ========================= -->
-        <!-- TIMECODE -->
-        <!-- ========================= -->
-
-        <div class="time-select">
-
-          <select id="hoursSelect">
-
-            <option value="0">
-              Выбрать часы
-            </option>
-
-          </select>
-
-          <select id="minutesSelect">
-
-            <option value="0">
-              Выбрать минуты
-            </option>
-
-          </select>
-
-          <button id="goToTimeBtn">
-            Перейти к таймкоду
-          </button>
-
-        </div>
-
-        <!-- ========================= -->
-        <!-- STATUS -->
-        <!-- ========================= -->
-
-        <div class="status" id="status">
-          Видео не загружено
-        </div>
-
       </div>
 
     </div>
-
   </div>
 
   <script>
-
-    // =========================
-    // ELEMENTS
-    // =========================
-
-    const player =
-      document.getElementById('player');
-
-    const video =
-      document.getElementById('video');
-
-    const videoWrap =
-      document.getElementById('videoWrap');
-
-    const loader =
-      document.getElementById('loader');
-
-    const status =
-      document.getElementById('status');
-
-    const progressBar =
-      document.getElementById('progressBar');
-
-    const progressContainer =
-      document.getElementById('progressContainer');
-
-    const videoControls =
-      document.getElementById('videoControls');
-
-    const mainPlayBtn =
-      document.getElementById('mainPlayBtn');
-
-    const muteBtn =
-      document.getElementById('muteBtn');
-
-    const volumeSlider =
-      document.getElementById('volumeSlider');
-
-    const urlInput =
-      document.getElementById('urlInput');
-
-    const audioInput =
-      document.getElementById('audioInput');
-
-    const externalAudio =
-      document.getElementById('externalAudio');
-
-    const timeDisplay =
-      document.getElementById('timeDisplay');
-
-    const videoTitle =
-      document.getElementById('videoTitle');
-
-    const buttonsContainer =
-      document.querySelector('.buttons');
-
-    // =========================
-    // STATE
-    // =========================
+    const video = document.getElementById('video');
+    const videoWrap = document.getElementById('videoWrap');
+    const loader = document.getElementById('loader');
+    const progressBar = document.getElementById('progressBar');
+    const progressContainer = document.getElementById('progressContainer');
+    const videoControls = document.getElementById('videoControls');
+    const mainPlayBtn = document.getElementById('mainPlayBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const externalAudio = document.getElementById('externalAudio');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const videoTitle = document.getElementById('videoTitle');
+    const playOverlay = document.getElementById('playOverlay');
+    const posterLayer = document.getElementById('posterLayer');
+    const startMenu = document.getElementById('startMenu');
+    const bigPlayBtn = document.getElementById('bigPlayBtn');
+    const continueBtn = document.getElementById('continueBtn');
+    const backBtn = document.getElementById('backBtn');
+    const forwardBtn = document.getElementById('forwardBtn');
 
     let currentVideoKey = null;
     let uiHideTimeout;
-
-    // =========================
-    // UI AUTO HIDE
-    // =========================
+    let hasStartedPlaying = false;
+    let menuAlreadyShown = false;
 
     function showUI() {
-
-      videoControls.classList.remove(
-        'hidden-ui'
-      );
-
-      videoTitle.classList.remove(
-        'hidden-ui'
-      );
-
+      videoControls.classList.remove('hidden-ui');
+      videoTitle.classList.remove('hidden-ui');
       clearTimeout(uiHideTimeout);
-
-      uiHideTimeout =
-        setTimeout(() => {
-
-          if (!video.paused) {
-
-            videoControls.classList.add(
-              'hidden-ui'
-            );
-
-            videoTitle.classList.add(
-              'hidden-ui'
-            );
-          }
-
-        }, 3000);
+      uiHideTimeout = setTimeout(() => {
+        if (!video.paused) {
+          videoControls.classList.add('hidden-ui');
+          videoTitle.classList.add('hidden-ui');
+        }
+      }, 3000);
     }
 
-    // =========================
-    // VOLUME CONTROL
-    // =========================
-
-    function updateMuteIcon() {
-      const isMuted = externalAudio.src ? (externalAudio.muted || externalAudio.volume === 0) : (video.muted || video.volume === 0);
-
-      if (isMuted) {
-        muteBtn.textContent = '🔇';
-      } else if ((externalAudio.src ? externalAudio.volume : video.volume) < 0.5) {
-        muteBtn.textContent = '🔉';
-      } else {
-        muteBtn.textContent = '🔊';
-      }
+    function updateTimeDisplay() {
+      const current = formatTime(video.currentTime || 0);
+      const total = formatTime(video.duration || 0);
+      timeDisplay.textContent = `${current} / ${total}`;
     }
-
-    volumeSlider.oninput = () => {
-      const val = volumeSlider.value;
-      if (externalAudio.src) {
-        externalAudio.volume = val;
-      } else {
-        video.volume = val;
-      }
-      updateMuteIcon();
-    };
-
-    muteBtn.onclick = () => {
-      if (externalAudio.src) {
-        externalAudio.muted = !externalAudio.muted;
-      } else {
-        video.muted = !video.muted;
-      }
-      updateMuteIcon();
-    };
-
-    // =========================
-    // FORMAT TIME
-    // =========================
 
     function formatTime(seconds) {
       const h = Math.floor(seconds / 3600);
       const m = Math.floor((seconds % 3600) / 60);
       const s = Math.floor(seconds % 60);
-
-      if (h > 0) {
-        return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-      }
+      if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
       return `${m}:${String(s).padStart(2, '0')}`;
     }
 
-    function updateTimeDisplay() {
-      const current = formatTime(video.currentTime);
-      const total = formatTime(video.duration || 0);
-      timeDisplay.textContent = `${current} / ${total}`;
-    }
-
-    // =========================
-    // FILL SELECTS
-    // =========================
-
-    function fillSelect(select, max) {
-
-      for (let i = 0; i <= max; i++) {
-
-        const option =
-          document.createElement('option');
-
-        option.value = i;
-
-        option.textContent =
-          String(i).padStart(2, '0');
-
-        select.appendChild(option);
+    function updateMuteIcon() {
+      const vol = externalAudio.src ? externalAudio.volume : video.volume;
+      const isMuted = externalAudio.src ? externalAudio.muted : video.muted;
+      if (isMuted || vol === 0) {
+        muteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+      } else if (vol < 0.5) {
+        muteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>';
+      } else {
+        muteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
       }
     }
 
-    fillSelect(hoursSelect, 23);
-    fillSelect(minutesSelect, 59);
+    muteBtn.onclick = (e) => {
+      e.stopPropagation();
+      const newState = externalAudio.src ? !externalAudio.muted : !video.muted;
+      video.muted = newState;
+      externalAudio.muted = newState;
+      updateMuteIcon();
+    };
 
-    // =========================
-    // STORAGE
-    // =========================
+    volumeSlider.oninput = (e) => {
+      e.stopPropagation();
+      const val = volumeSlider.value;
+      video.volume = val;
+      externalAudio.volume = val;
+      updateMuteIcon();
+    };
 
-    function getVideoKey(publicUrl) {
+    volumeSlider.onclick = (e) => e.stopPropagation();
 
-      return (
-        'video-progress-' +
-        publicUrl
-      );
+    function togglePlay(silent = false) {
+      if (video.paused) {
+        video.play();
+        if (!silent) showOverlay('▶');
+      } else {
+        video.pause();
+        if (!silent) showOverlay('⏸');
+      }
+      hideMenu();
     }
 
-    function saveProgress() {
-
-      if (!currentVideoKey) return;
-
-      localStorage.setItem(
-        currentVideoKey,
-        video.currentTime
-      );
+    function hideMenu() {
+      startMenu.classList.add('hidden');
+      videoWrap.classList.remove('dimmed');
     }
-
-    function clearProgress() {
-
-      if (!currentVideoKey) return;
-
-      localStorage.removeItem(
-        currentVideoKey
-      );
-    }
-
-    // =========================
-    // OVERLAY
-    // =========================
 
     function showOverlay(icon) {
-
-      playOverlay.textContent =
-        icon;
-
-      playOverlay.classList.add(
-        'show'
-      );
-
-      clearTimeout(
-        playOverlay.hideTimeout
-      );
-
-      playOverlay.hideTimeout =
-        setTimeout(() => {
-
-          playOverlay.classList.remove(
-            'show'
-          );
-
-        }, 400);
+      playOverlay.innerHTML = icon === '▶' ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>' : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+      playOverlay.classList.add('show');
+      clearTimeout(playOverlay.hideTimeout);
+      playOverlay.hideTimeout = setTimeout(() => playOverlay.classList.remove('show'), 1000);
     }
-
-    // =========================
-    // RESTORE BUTTON
-    // =========================
 
     function restoreProgress() {
+      if (menuAlreadyShown || hasStartedPlaying) return;
+      menuAlreadyShown = true;
+      
+      const savedTime = currentVideoKey ? localStorage.getItem(currentVideoKey) : null;
+      loader.classList.add('hidden');
+      startMenu.classList.remove('hidden');
+      videoWrap.classList.add('dimmed');
 
-      if (!currentVideoKey) return;
-
-      const savedTime =
-        localStorage.getItem(
-          currentVideoKey
-        );
-
-      if (!savedTime) return;
-
-      const oldBtn =
-        document.getElementById(
-          'continueBtn'
-        );
-
-      if (oldBtn) {
-        oldBtn.remove();
+      if (savedTime && Number(savedTime) > 10) {
+        const seconds = Math.floor(Number(savedTime));
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        const formatted = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        continueBtn.textContent = `Продолжить с ${formatted}`;
+        continueBtn.classList.remove('hidden');
+      } else {
+        continueBtn.classList.add('hidden');
       }
-
-      const seconds =
-        Math.floor(Number(savedTime));
-
-      const h =
-        Math.floor(seconds / 3600);
-
-      const m =
-        Math.floor((seconds % 3600) / 60);
-
-      const s =
-        seconds % 60;
-
-      const formatted =
-        `${String(h).padStart(2, '0')}:` +
-        `${String(m).padStart(2, '0')}:` +
-        `${String(s).padStart(2, '0')}`;
-
-      const continueBtn =
-        document.createElement('button');
-
-      continueBtn.id =
-        'continueBtn';
-
-      continueBtn.textContent =
-        `Продолжить просмотр с ${formatted}?`;
-
-      buttonsContainer.appendChild(
-        continueBtn
-      );
-
-      continueBtn.onclick = () => {
-
-        video.currentTime =
-          Number(savedTime);
-
-        continueBtn.remove();
-      };
     }
 
-    // =========================
-    // LOAD VIDEO
-    // =========================
+    bigPlayBtn.onclick = (e) => { e.stopPropagation(); video.currentTime = 0; togglePlay(true); };
+    continueBtn.onclick = (e) => {
+      e.stopPropagation();
+      const savedTime = localStorage.getItem(currentVideoKey);
+      if (savedTime) video.currentTime = Number(savedTime);
+      togglePlay(true);
+    };
 
     async function loadVideo(publicUrl) {
       try {
-        // Останавливаем старое видео и звук перед новой загрузкой
-        video.pause();
-        video.src = "";
-        externalAudio.pause();
-        externalAudio.src = "";
+        video.pause(); video.src = "";
+        hasStartedPlaying = false; menuAlreadyShown = false;
+        
+        startMenu.classList.add('hidden');
+        continueBtn.classList.add('hidden');
+        posterLayer.classList.remove('visible');
+        videoWrap.classList.remove('dimmed');
+        loader.classList.remove('hidden');
+        loader.textContent = 'Загружаем...';
 
-        const continueBtn = document.getElementById('continueBtn');
-        if (continueBtn) continueBtn.remove();
+        currentVideoKey = 'video-progress-' + publicUrl;
+        localStorage.setItem('last-video-url', publicUrl);
 
-        loader.classList.remove(
-          'hidden'
-        );
+        const api = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=' + encodeURIComponent(publicUrl);
+        const resp = await fetch(api);
+        const data = await resp.json();
+        if (!data.href) throw new Error();
 
-        loader.textContent =
-          'Загружаем видео...';
-
-        status.textContent =
-          'Получаем ссылку...';
-
-        localStorage.setItem(
-          'last-video-url',
-          publicUrl
-        );
-
-        currentVideoKey =
-          getVideoKey(publicUrl);
-
-        const api =
-          'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key='
-          + encodeURIComponent(publicUrl);
-
-        const response =
-          await fetch(api);
-
-        const data =
-          await response.json();
-
-        if (!data.href) {
-          throw new Error('Не удалось получить ссылку');
-        }
-
-        // Fetch Metadata (Filename)
+        // Metadata
         try {
-          const metaApi = 'https://cloud-api.yandex.net/v1/disk/public/resources?public_key=' + encodeURIComponent(publicUrl);
-          const metaResp = await fetch(metaApi);
-          const metaData = await metaResp.json();
-          if (metaData.name) {
-            videoTitle.textContent = metaData.name;
-            document.title = metaData.name + " - Yandex Player";
+          const mApi = 'https://cloud-api.yandex.net/v1/disk/public/resources?public_key=' + encodeURIComponent(publicUrl) + '&preview_size=1280x720&fields=name,preview';
+          const mResp = await fetch(mApi);
+          const mData = await mResp.json();
+          if (mData.name) {
+            videoTitle.textContent = mData.name;
+            document.title = mData.name + " - Player";
+            // Show menu as soon as we have metadata
+            restoreProgress();
           }
-        } catch (e) {
-          console.log("Metadata fetch failed", e);
-          videoTitle.textContent = "Видео с Яндекс Диска";
-        }
+          if (mData.preview) {
+            const img = new Image();
+            img.onload = () => { posterLayer.style.backgroundImage = `url('${mData.preview}')`; posterLayer.classList.add('visible'); };
+            img.src = mData.preview;
+          }
+        } catch(e) {}
 
         video.src = data.href;
+        const aParam = new URLSearchParams(window.location.search).get('a');
+        if (aParam) {
+          const aApi = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=' + encodeURIComponent(aParam);
+          const aResp = await fetch(aApi);
+          const aData = await aResp.json();
+          if (aData.href) { externalAudio.src = aData.href; video.muted = true; }
+        } else { video.muted = false; }
+        
+        updateMuteIcon();
+        video.oncanplay = () => restoreProgress();
 
-        // Handle optional audio
-        const audioUrl = audioInput.value.trim();
-        if (audioUrl) {
-          const audioApi = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=' + encodeURIComponent(audioUrl);
-          const audioResp = await fetch(audioApi);
-          const audioData = await audioResp.json();
-          if (audioData.href) {
-            externalAudio.src = audioData.href;
-            video.muted = true; // Mute video if we have external audio
-            externalAudio.volume = volumeSlider.value;
-          }
-        } else {
-          externalAudio.removeAttribute('src');
-          video.muted = false;
-          video.volume = volumeSlider.value;
-        }
-
-        video.onloadedmetadata = () => {
-          restoreProgress();
-        };
-
-        video.onloadeddata = () => {
-
-          loader.classList.add(
-            'hidden'
-          );
-
-          status.textContent =
-            'Видео готово';
-        };
-
-      } catch (err) {
-
-        console.error(err);
-
-        loader.classList.remove(
-          'hidden'
-        );
-
-        loader.textContent =
-          'Ошибка загрузки видео';
-
-        status.textContent =
-          'Ошибка загрузки';
-      }
+      } catch (err) { loader.textContent = 'Ошибка загрузки'; }
     }
 
-    // =========================
-    // LOAD BUTTON
-    // =========================
-
-    document.getElementById(
-      'loadBtn'
-    ).onclick = () => {
-
-      const url =
-        urlInput.value.trim();
-
-      if (!url) {
-
-        alert(
-          'Вставьте ссылку'
-        );
-
-        return;
-      }
-
-      loadVideo(url);
-    };
-
-    // =========================
-    // AUTO LOAD (URL PARAMS OR LAST VIDEO)
-    // =========================
-
-    const params = new URLSearchParams(window.location.search);
-    const vParam = params.get('v');
-    const aParam = params.get('a');
-
-    if (vParam) {
-      urlInput.value = vParam;
-      if (aParam) audioInput.value = aParam;
-      loadVideo(vParam);
-    } else {
-      const lastVideoUrl = localStorage.getItem('last-video-url');
-      if (lastVideoUrl) {
-        urlInput.value = lastVideoUrl;
-        loadVideo(lastVideoUrl);
-      }
-    }
-
-    // =========================
-    // PASTE FROM CLIPBOARD
-    // =========================
-
-    async function pasteToInput(inputId) {
-      try {
-        const text = await navigator.clipboard.readText();
-        document.getElementById(inputId).value = text;
-      } catch (err) {
-        console.error('Failed to read clipboard:', err);
-      }
-    }
-
-    // =========================
-    // PLAY / PAUSE
-    // =========================
-
-    function togglePlay() {
-
-      if (video.paused) {
-
-        video.play();
-
-        showOverlay('▶');
-
-      } else {
-
-        video.pause();
-
-        showOverlay('⏸');
-      }
-    }
-
-    mainPlayBtn.onclick = (e) => {
-      e.stopPropagation();
-      togglePlay();
-    };
-
-    playPauseBtn.onclick =
-      togglePlay;
-
-    videoWrap.onclick = () => {
-
-      togglePlay();
-
-      showUI();
-    };
+    mainPlayBtn.onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    videoWrap.onclick = () => { togglePlay(); showUI(); };
+    videoControls.onclick = (e) => e.stopPropagation();
 
     video.onplay = () => {
-
-      playPauseBtn.textContent =
-        '⏸ Pause';
-
-      mainPlayBtn.textContent = '⏸';
-
-      if (externalAudio.src) {
-        externalAudio.play();
-        externalAudio.currentTime = video.currentTime;
-      }
-
+      hasStartedPlaying = true; hideMenu();
+      mainPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+      posterLayer.classList.remove('visible');
+      if (externalAudio.src) { externalAudio.play(); externalAudio.currentTime = video.currentTime; }
       showUI();
     };
-
     video.onpause = () => {
-
-      playPauseBtn.textContent =
-        '▶ Play';
-
-      mainPlayBtn.textContent = '▶';
-
-      if (externalAudio.src) {
-        externalAudio.pause();
-      }
-
-      videoControls.classList.remove(
-        'hidden-ui'
-      );
-
-      videoTitle.classList.remove(
-        'hidden-ui'
-      );
+      mainPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+      if (externalAudio.src) externalAudio.pause();
+      showUI();
     };
-
-    video.onseeking = () => {
-      if (externalAudio.src) {
-        externalAudio.currentTime = video.currentTime;
-      }
-    };
-
-    // Keep audio synced with video
+    video.onseeking = () => { if (externalAudio.src) externalAudio.currentTime = video.currentTime; };
     setInterval(() => {
       if (externalAudio.src && !video.paused) {
         const diff = Math.abs(externalAudio.currentTime - video.currentTime);
-        if (diff > 0.3) {
-          externalAudio.currentTime = video.currentTime;
-        }
+        if (diff > 0.3) externalAudio.currentTime = video.currentTime;
       }
     }, 1000);
-
-    // =========================
-    // SHOW UI ON MOVE
-    // =========================
-
-    video.addEventListener(
-      'mousemove',
-      showUI
-    );
-
-    // =========================
-    // FULLSCREEN
-    // =========================
-
-    document.getElementById(
-      'fullscreenBtn'
-    ).onclick = async (e) => {
-
+    video.addEventListener('mousemove', showUI);
+    backBtn.onclick = (e) => { e.stopPropagation(); video.currentTime -= 10; showOverlay('⏪'); showUI(); };
+    forwardBtn.onclick = (e) => { e.stopPropagation(); video.currentTime += 10; showOverlay('⏩'); showUI(); };
+    fullscreenBtn.onclick = async (e) => {
       e.stopPropagation();
-
-      if (
-        !document.fullscreenElement
-      ) {
-
-        await player.requestFullscreen();
-
-      } else {
-
-        await document.exitFullscreen();
-      }
-
+      if (!document.fullscreenElement) await player.requestFullscreen(); else await document.exitFullscreen();
       showUI();
     };
-
-    // =========================
-    // SEEK BUTTONS
-    // =========================
-
-    document.getElementById(
-      'backBtn'
-    ).onclick = () => {
-
-      video.currentTime =
-        Math.max(
-          0,
-          video.currentTime - 10
-        );
-
-      showOverlay('⏪');
-
-      showUI();
-    };
-
-    document.getElementById(
-      'forwardBtn'
-    ).onclick = () => {
-
-      video.currentTime =
-        video.currentTime + 10;
-
-      showOverlay('⏩');
-
-      showUI();
-    };
-
-    // =========================
-    // TIMECODE JUMP
-    // =========================
-
-    document.getElementById(
-      'goToTimeBtn'
-    ).onclick = () => {
-
-      const h =
-        Number(hoursSelect.value);
-
-      const m =
-        Number(minutesSelect.value);
-
-      const total =
-        h * 3600 + m * 60;
-
-      video.currentTime =
-        total;
-
-      showUI();
-    };
-
-    // =========================
-    // TIME UPDATE
-    // =========================
-
     video.ontimeupdate = () => {
-
       if (!video.duration) return;
-
-      const percent =
-        (video.currentTime /
-          video.duration) * 100;
-
-      progressBar.style.width =
-        percent + '%';
-
+      progressBar.style.width = (video.currentTime / video.duration * 100) + '%';
       updateTimeDisplay();
-
-      const current =
-        Math.floor(video.currentTime);
-
-      const h =
-        Math.floor(current / 3600);
-
-      const m =
-        Math.floor(
-          (current % 3600) / 60
-        );
-
-      const s =
-        current % 60;
-
-      status.textContent =
-        `Таймкод: ${String(h).padStart(2, '0')
-        }:${String(m).padStart(2, '0')
-        }:${String(s).padStart(2, '0')
-        }`;
     };
 
     video.onloadedmetadata = () => {
-      restoreProgress();
       updateTimeDisplay();
     };
-
-    // =========================
-    // CLICKABLE PROGRESS
-    // =========================
-
-    progressContainer.onclick =
-      (e) => {
-
-        e.stopPropagation();
-
-        if (!video.duration) return;
-
-        const rect =
-          progressContainer
-            .getBoundingClientRect();
-
-        const x =
-          e.clientX - rect.left;
-
-        const percent =
-          x / rect.width;
-
-        video.currentTime =
-          percent * video.duration;
-
-        showUI();
-      };
-
-    // =========================
-    // AUTOSAVE
-    // =========================
-
-    setInterval(() => {
-
-      if (
-        !video.paused &&
-        video.currentTime > 0
-      ) {
-
-        saveProgress();
-      }
-
-    }, 5000);
-
-    // =========================
-    // SAVE BEFORE EXIT
-    // =========================
-
-    window.addEventListener(
-      'beforeunload',
-      saveProgress
-    );
-
-    // =========================
-    // VIDEO ENDED
-    // =========================
-
-    video.onended = () => {
-
-      clearProgress();
-
-      const continueBtn =
-        document.getElementById(
-          'continueBtn'
-        );
-
-      if (continueBtn) {
-        continueBtn.remove();
-      }
-
-      playPauseBtn.textContent =
-        '▶ Play';
-
-      status.textContent =
-        'Видео завершено';
-
-      videoControls.classList.remove(
-        'hidden-ui'
-      );
+    progressContainer.onclick = (e) => {
+      e.stopPropagation();
+      const rect = progressContainer.getBoundingClientRect();
+      video.currentTime = (e.clientX - rect.left) / rect.width * video.duration;
+      showUI();
     };
+    setInterval(() => { if (!video.paused && video.currentTime > 0) localStorage.setItem(currentVideoKey, video.currentTime); }, 5000);
+    window.addEventListener('beforeunload', () => { if (!video.paused) localStorage.setItem(currentVideoKey, video.currentTime); });
+    video.onended = () => { localStorage.removeItem(currentVideoKey); mainPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; showUI(); };
 
+    const p = new URLSearchParams(window.location.search);
+    if (p.get('v')) loadVideo(p.get('v')); else if (localStorage.getItem('last-video-url')) loadVideo(localStorage.getItem('last-video-url'));
   </script>
-
 </body>
-
 </html>
