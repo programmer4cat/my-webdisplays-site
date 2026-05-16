@@ -470,7 +470,8 @@
       videoWrap.classList.add('dimmed');
 
       if (savedTime && Number(savedTime) > 10) {
-        const seconds = Math.floor(Number(savedTime));
+        const displayTime = Math.max(0, Number(savedTime) - 5);
+        const seconds = Math.floor(displayTime);
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
         const s = seconds % 60;
@@ -486,7 +487,7 @@
     continueBtn.onclick = (e) => {
       e.stopPropagation();
       const savedTime = localStorage.getItem(currentVideoKey);
-      if (savedTime) video.currentTime = Number(savedTime);
+      if (savedTime) video.currentTime = Math.max(0, Number(savedTime) - 5);
       togglePlay(true);
     };
 
