@@ -2,210 +2,660 @@
 <html lang="ru">
 
 <head>
+
   <meta charset="UTF-8" />
+  <meta name="referrer" content="no-referrer" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Yandex Folder Explorer</title>
+
+  <title>Yandex Video Player</title>
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      background: #0f1116;
-      background: linear-gradient(90deg, #0f1116, #1a1b22);
-      color: #eee;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 40px;
       margin: 0;
       min-height: 100vh;
-    }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-    .input-group {
       display: flex;
-      gap: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 24px;
+      background: #0f1116;
+      background: -webkit-linear-gradient(90deg, #0f1116, #1a1b22);
+      background: linear-gradient(90deg, #0f1116, #1a1b22);
     }
-    input {
-      flex: 1;
-      padding: 12px 20px;
+
+    .player-wrap {
+      width: min(980px, 96vw);
+    }
+
+    .player {
       background: #000;
-      border: 1px solid #333;
-      color: white;
-      border-radius: 8px;
-      font-size: 16px;
-      outline: none;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
+      position: relative;
     }
-    input:focus {
-      border-color: #9300ff;
+
+    /* FULLSCREEN */
+    .player:fullscreen {
+      background: #000;
+      border-radius: 0;
+      justify-content: center;
+      aspect-ratio: auto;
+      width: 100vw;
+      height: 100vh;
     }
-    button {
-      padding: 12px 30px;
-      background: #9300ff;
-      color: white;
-      border: none;
+
+    .player:fullscreen .video-wrap {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* DIMMING OVERLAY FOR CONTINUE BTN */
+    .video-wrap.dimmed::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 90;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    /* VIDEO AREA */
+    .video-wrap {
+      position: relative;
+      background: black;
       cursor: pointer;
-      border-radius: 8px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 16 / 9;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    video {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+      background: black;
+    }
+
+    .loader {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, .3);
+      z-index: 150;
+      font-size: 18px;
+      pointer-events: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* POSTER LAYER */
+    .poster-layer {
+      position: absolute;
+      inset: 0;
+      background-color: black;
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: 15;
+      transition: opacity 0.6s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .poster-layer.visible {
+      opacity: 1;
+    }
+
+    /* PLAY OVERLAY */
+    .play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: .2s;
+      color: #9300ff;
+      background: rgba(0, 0, 0, .15);
+      z-index: 20;
+    }
+
+    .play-overlay svg {
+      width: 80px;
+      height: 80px;
+    }
+
+    .play-overlay.show {
+      opacity: 1;
+    }
+
+    /* VIDEO CONTROLS */
+    .video-controls {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 110;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 70%, transparent 100%);
+      padding: 30px 0 0 0;
+      /* Reduced top padding as requested */
+      opacity: 1;
+      transition: opacity .3s;
+    }
+
+    .video-controls.hidden-ui {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .video-title {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 25px 25px 80px 25px;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+      font-size: 24px;
       font-weight: bold;
-      transition: all 0.2s;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 95;
+      transition: opacity 0.3s;
+      pointer-events: none;
     }
-    button:hover {
-      background: #a62eff;
-      transform: translateY(-2px);
+
+    .video-title.hidden-ui {
+      opacity: 0;
     }
-    .file-list {
-      margin-top: 30px;
-      display: grid;
-      gap: 10px;
+
+    .progress-wrapper {
+      padding: 0 15px;
+      margin-bottom: 5px;
     }
-    .file-item {
-      background: rgba(255, 255, 255, 0.03);
-      padding: 15px 20px;
-      border-radius: 8px;
+
+    .progress-container {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      position: relative;
+      transition: height 0.1s;
+    }
+
+    .progress-container:hover {
+      height: 12px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #9300ff;
+    }
+
+    .controls-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      transition: background 0.2s;
+      padding: 5px 15px 15px 15px;
     }
-    .file-item:hover {
-      background: rgba(255, 255, 255, 0.08);
-    }
-    .file-info {
+
+    .left-controls,
+    .right-controls {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 8px;
     }
-    .file-icon {
-      font-size: 24px;
+
+    .seek-group {
+      display: flex;
+      gap: 2px;
+      margin-right: 5px;
     }
-    .file-name {
-      font-weight: 500;
-      color: #fff;
-    }
-    .file-meta {
-      font-size: 13px;
-      color: #888;
-    }
-    .play-btn {
-      padding: 6px 15px;
-      background: transparent;
-      border: 1px solid #9300ff;
-      color: #9300ff;
-      border-radius: 4px;
-      font-size: 13px;
-      text-decoration: none;
-    }
-    .play-btn:hover {
-      background: #9300ff;
+
+    .icon-btn {
+      background: none;
+      border: none;
       color: white;
+      font-size: 24px;
+      padding: 5px;
+      cursor: pointer;
+      opacity: 0.9;
+      transition: opacity 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
     }
-    .loader {
-      text-align: center;
-      padding: 40px;
-      color: #9300ff;
+
+    .icon-btn svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    .icon-btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .time-display {
+      font-size: 16px;
+      color: #eee;
+      font-family: monospace;
+      margin-left: 10px;
+    }
+
+    #volumeSlider {
+      width: 100px;
+      height: 6px;
+      -webkit-appearance: none;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    #volumeSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    #continueBtn {
+      padding: 12px 20px;
+      font-size: 16px;
       font-weight: bold;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(5px);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 20px;
     }
-    .error {
-      color: #ff4444;
-      text-align: center;
-      padding: 20px;
+
+    #continueBtn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.05);
+    }
+
+    /* START MENU CONTAINER */
+    .start-menu {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: opacity 0.4s ease;
+    }
+
+    .big-play-btn {
+      background: none;
+      border: none;
+      color: #9300ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      filter: drop-shadow(0 0 20px rgba(147, 0, 255, 0.4));
+    }
+
+    .big-play-btn:hover {
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 30px rgba(147, 0, 255, 0.6));
+    }
+
+    .big-play-btn svg {
+      width: 120px;
+      height: 120px;
     }
   </style>
+
 </head>
 
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Yandex Folder Explorer</h1>
-      <p>Введите ссылку на ПАПКУ для получения списка файлов</p>
-    </div>
 
-    <div class="input-group">
-      <input type="text" id="folderUrl" placeholder="https://disk.yandex.ru/d/..." />
-      <button onclick="exploreFolder()">Открыть папку</button>
-    </div>
+  <div class="player-wrap">
+    <div class="player" id="player">
 
-    <div id="status"></div>
-    <div class="file-list" id="fileList"></div>
+      <div class="video-wrap" id="videoWrap">
+        <div class="loader hidden" id="loader">Загружаем...</div>
+        <div class="play-overlay" id="playOverlay"></div>
+        <div class="poster-layer" id="posterLayer"></div>
+
+        <div id="startMenu" class="start-menu hidden">
+          <button id="bigPlayBtn" class="big-play-btn" title="Начать сначала">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </button>
+          <button id="continueBtn" class="hidden">Продолжить</button>
+        </div>
+
+        <video id="video"></video>
+        <audio id="externalAudio"></audio>
+
+        <div class="video-title" id="videoTitle"></div>
+
+        <div class="video-controls" id="videoControls">
+          <div class="progress-wrapper">
+            <div class="progress-container" id="progressContainer">
+              <div class="progress-bar" id="progressBar"></div>
+            </div>
+          </div>
+
+          <div class="controls-row">
+            <div class="left-controls">
+              <button id="mainPlayBtn" class="icon-btn" title="Воспроизвести">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </button>
+
+              <div class="seek-group">
+                <button id="backBtn" class="icon-btn" title="Назад 10 сек">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z" />
+                  </svg>
+                </button>
+
+                <button id="forwardBtn" class="icon-btn" title="Вперед 10 сек">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z" />
+                  </svg>
+                </button>
+              </div>
+
+              <button id="muteBtn" class="icon-btn" title="Громкость">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                </svg>
+              </button>
+              <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1">
+              <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+            </div>
+            <div class="right-controls">
+              <button id="fullscreenBtn" class="icon-btn">⛶</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <script>
-    async function exploreFolder() {
-      const url = document.getElementById('folderUrl').value.trim();
-      if (!url) return;
+    const video = document.getElementById('video');
+    const videoWrap = document.getElementById('videoWrap');
+    const loader = document.getElementById('loader');
+    const progressBar = document.getElementById('progressBar');
+    const progressContainer = document.getElementById('progressContainer');
+    const videoControls = document.getElementById('videoControls');
+    const mainPlayBtn = document.getElementById('mainPlayBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const externalAudio = document.getElementById('externalAudio');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const videoTitle = document.getElementById('videoTitle');
+    const playOverlay = document.getElementById('playOverlay');
+    const posterLayer = document.getElementById('posterLayer');
+    const startMenu = document.getElementById('startMenu');
+    const bigPlayBtn = document.getElementById('bigPlayBtn');
+    const continueBtn = document.getElementById('continueBtn');
+    const backBtn = document.getElementById('backBtn');
+    const forwardBtn = document.getElementById('forwardBtn');
 
-      const listDiv = document.getElementById('fileList');
-      const statusDiv = document.getElementById('status');
-      
-      listDiv.innerHTML = '';
-      statusDiv.innerHTML = '<div class="loader">Получаем содержимое папки...</div>';
+    let currentVideoKey = null;
+    let uiHideTimeout;
+    let hasStartedPlaying = false;
+    let menuAlreadyShown = false;
 
-      try {
-        // Запрашиваем ресурсы папки. Лимит 100 файлов для начала.
-        const api = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(url)}&limit=100`;
-        const resp = await fetch(api);
-        const data = await resp.json();
-
-        if (data.error) {
-          throw new Error(data.message || 'Ошибка API');
+    function showUI() {
+      videoControls.classList.remove('hidden-ui');
+      videoTitle.classList.remove('hidden-ui');
+      clearTimeout(uiHideTimeout);
+      uiHideTimeout = setTimeout(() => {
+        if (!video.paused) {
+          videoControls.classList.add('hidden-ui');
+          videoTitle.classList.add('hidden-ui');
         }
+      }, 3000);
+    }
 
-        if (data.type !== 'dir') {
-          throw new Error('Это не папка. Используйте ссылку на папку.');
-        }
+    function updateTimeDisplay() {
+      const current = formatTime(video.currentTime || 0);
+      const total = formatTime(video.duration || 0);
+      timeDisplay.textContent = `${current} / ${total}`;
+    }
 
-        statusDiv.innerHTML = `<h3>Содержимое папки: ${data.name}</h3>`;
-        
-        const items = data._embedded.items;
-        if (!items || items.length === 0) {
-          listDiv.innerHTML = '<div class="error">Папка пуста</div>';
-          return;
-        }
+    function formatTime(seconds) {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = Math.floor(seconds % 60);
+      if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      return `${m}:${String(s).padStart(2, '0')}`;
+    }
 
-        // Фильтруем только видео (или показываем всё)
-        items.forEach(item => {
-          const isVideo = item.media_type === 'video';
-          const div = document.createElement('div');
-          div.className = 'file-item';
-          
-          const sizeMb = (item.size / (1024 * 1024)).toFixed(1);
-          
-          // Создаем ссылку на плеер (предполагаем что плеер лежит в этой же папке)
-          // Мы используем public_url самого файла если он есть, 
-          // или конструируем из папки + путь (но для публичных ссылок лучше использовать public_key файла)
-          const playerUrl = `Yandex Video Player v1.7.html?v=${encodeURIComponent(item.public_url || item.public_key)}`;
-
-          div.innerHTML = `
-            <div class="file-info">
-              <span class="file-icon">${isVideo ? '🎬' : '📁'}</span>
-              <div>
-                <div class="file-name">${item.name}</div>
-                <div class="file-meta">${isVideo ? 'Видео' : 'Файл'} • ${sizeMb} MB</div>
-              </div>
-            </div>
-            ${isVideo ? `<a href="${playerUrl}" class="play-btn" target="_blank">Смотреть</a>` : ''}
-          `;
-          listDiv.appendChild(div);
-        });
-
-      } catch (e) {
-        statusDiv.innerHTML = `<div class="error">Ошибка: ${e.message}</div>`;
+    function updateMuteIcon() {
+      const vol = externalAudio.src ? externalAudio.volume : video.volume;
+      const isMuted = externalAudio.src ? externalAudio.muted : video.muted;
+      if (isMuted || vol === 0) {
+        muteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+      } else if (vol < 0.5) {
+        muteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>';
+      } else {
+        muteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
       }
     }
 
-    // Авто-запуск если есть параметр в URL
-    const p = new URLSearchParams(window.location.search);
-    if (p.get('d')) {
-      document.getElementById('folderUrl').value = p.get('d');
-      exploreFolder();
+    muteBtn.onclick = (e) => {
+      e.stopPropagation();
+      const newState = externalAudio.src ? !externalAudio.muted : !video.muted;
+      video.muted = newState;
+      externalAudio.muted = newState;
+      updateMuteIcon();
+    };
+
+    volumeSlider.oninput = (e) => {
+      e.stopPropagation();
+      const val = volumeSlider.value;
+      video.volume = val;
+      externalAudio.volume = val;
+      updateMuteIcon();
+    };
+
+    volumeSlider.onclick = (e) => e.stopPropagation();
+
+    function togglePlay(silent = false) {
+      if (video.paused) {
+        video.play();
+        if (!silent) showOverlay('▶');
+      } else {
+        video.pause();
+        if (!silent) showOverlay('⏸');
+      }
+      hideMenu();
     }
+
+    function hideMenu() {
+      startMenu.classList.add('hidden');
+      videoWrap.classList.remove('dimmed');
+    }
+
+    function showOverlay(icon) {
+      playOverlay.innerHTML = icon === '▶' ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>' : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+      playOverlay.classList.add('show');
+      clearTimeout(playOverlay.hideTimeout);
+      playOverlay.hideTimeout = setTimeout(() => playOverlay.classList.remove('show'), 1000);
+    }
+
+    function restoreProgress() {
+      if (menuAlreadyShown || hasStartedPlaying) return;
+      menuAlreadyShown = true;
+
+      const savedTime = currentVideoKey ? localStorage.getItem(currentVideoKey) : null;
+      loader.classList.add('hidden');
+      startMenu.classList.remove('hidden');
+      videoWrap.classList.add('dimmed');
+
+      if (savedTime && Number(savedTime) > 10) {
+        const displayTime = Math.max(0, Number(savedTime) - 5);
+        const seconds = Math.floor(displayTime);
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        const formatted = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        continueBtn.textContent = `Продолжить с ${formatted}`;
+        continueBtn.classList.remove('hidden');
+      } else {
+        continueBtn.classList.add('hidden');
+      }
+    }
+
+    bigPlayBtn.onclick = (e) => { e.stopPropagation(); video.currentTime = 0; togglePlay(true); };
+    continueBtn.onclick = (e) => {
+      e.stopPropagation();
+      const savedTime = localStorage.getItem(currentVideoKey);
+      if (savedTime) video.currentTime = Math.max(0, Number(savedTime) - 5);
+      togglePlay(true);
+    };
+
+    async function loadVideo(publicUrl) {
+      try {
+        video.pause(); video.src = "";
+        hasStartedPlaying = false; menuAlreadyShown = false;
+
+        startMenu.classList.add('hidden');
+        continueBtn.classList.add('hidden');
+        posterLayer.classList.remove('visible');
+        videoWrap.classList.remove('dimmed');
+        loader.classList.remove('hidden');
+        loader.textContent = 'Загружаем...';
+
+        currentVideoKey = 'video-progress-' + publicUrl;
+        localStorage.setItem('last-video-url', publicUrl);
+
+        const api = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=' + encodeURIComponent(publicUrl);
+        const resp = await fetch(api);
+        const data = await resp.json();
+        if (!data.href) throw new Error();
+
+        // Metadata
+        try {
+          const mApi = 'https://cloud-api.yandex.net/v1/disk/public/resources?public_key=' + encodeURIComponent(publicUrl) + '&preview_size=1280x720&fields=name,preview';
+          const mResp = await fetch(mApi);
+          const mData = await mResp.json();
+          if (mData.name) {
+            videoTitle.textContent = mData.name;
+            document.title = mData.name + " - Player";
+            // Show menu as soon as we have metadata
+            restoreProgress();
+          }
+          if (mData.preview) {
+            const img = new Image();
+            img.onload = () => { posterLayer.style.backgroundImage = `url('${mData.preview}')`; posterLayer.classList.add('visible'); };
+            img.src = mData.preview;
+          }
+        } catch (e) { }
+
+        video.src = data.href;
+        const aParam = new URLSearchParams(window.location.search).get('a');
+        if (aParam) {
+          const aApi = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=' + encodeURIComponent(aParam);
+          const aResp = await fetch(aApi);
+          const aData = await aResp.json();
+          if (aData.href) { externalAudio.src = aData.href; video.muted = true; }
+        } else { video.muted = false; }
+
+        updateMuteIcon();
+        video.oncanplay = () => restoreProgress();
+
+      } catch (err) { loader.textContent = 'Ошибка загрузки'; }
+    }
+
+    mainPlayBtn.onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    videoWrap.onclick = () => { togglePlay(); showUI(); };
+    videoControls.onclick = (e) => e.stopPropagation();
+
+    video.onplay = () => {
+      hasStartedPlaying = true; hideMenu();
+      mainPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+      posterLayer.classList.remove('visible');
+      if (externalAudio.src) { externalAudio.play(); externalAudio.currentTime = video.currentTime; }
+      showUI();
+    };
+    video.onpause = () => {
+      mainPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+      if (externalAudio.src) externalAudio.pause();
+      showUI();
+    };
+    video.onseeking = () => { if (externalAudio.src) externalAudio.currentTime = video.currentTime; };
+    setInterval(() => {
+      if (externalAudio.src && !video.paused) {
+        const diff = Math.abs(externalAudio.currentTime - video.currentTime);
+        if (diff > 0.3) externalAudio.currentTime = video.currentTime;
+      }
+    }, 1000);
+    video.addEventListener('mousemove', showUI);
+    backBtn.onclick = (e) => { e.stopPropagation(); video.currentTime -= 10; showOverlay('⏪'); showUI(); };
+    forwardBtn.onclick = (e) => { e.stopPropagation(); video.currentTime += 10; showOverlay('⏩'); showUI(); };
+    fullscreenBtn.onclick = async (e) => {
+      e.stopPropagation();
+      if (!document.fullscreenElement) await player.requestFullscreen(); else await document.exitFullscreen();
+      showUI();
+    };
+    video.ontimeupdate = () => {
+      if (!video.duration) return;
+      progressBar.style.width = (video.currentTime / video.duration * 100) + '%';
+      updateTimeDisplay();
+    };
+
+    video.onloadedmetadata = () => {
+      updateTimeDisplay();
+    };
+    progressContainer.onclick = (e) => {
+      e.stopPropagation();
+      const rect = progressContainer.getBoundingClientRect();
+      video.currentTime = (e.clientX - rect.left) / rect.width * video.duration;
+      showUI();
+    };
+    setInterval(() => { if (!video.paused && video.currentTime > 0) localStorage.setItem(currentVideoKey, video.currentTime); }, 5000);
+    window.addEventListener('beforeunload', () => { if (!video.paused) localStorage.setItem(currentVideoKey, video.currentTime); });
+    video.onended = () => { localStorage.removeItem(currentVideoKey); mainPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; showUI(); };
+
+    const p = new URLSearchParams(window.location.search);
+    if (p.get('v')) loadVideo(p.get('v')); else if (localStorage.getItem('last-video-url')) loadVideo(localStorage.getItem('last-video-url'));
   </script>
 </body>
 
