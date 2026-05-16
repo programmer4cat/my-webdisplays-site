@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yandex Folder Explorer</title>
+  <style>
+    body {
+      background: #0f1116;
+      background: linear-gradient(90deg, #0f1116, #1a1b22);
+      color: #eee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 40px;
+      margin: 0;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .input-group {
+      display: flex;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    input {
+      flex: 1;
+      padding: 12px 20px;
+      background: #000;
+      border: 1px solid #333;
+      color: white;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+    }
+    input:focus {
+      border-color: #9300ff;
+    }
+    button {
+      padding: 12px 30px;
+      background: #9300ff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    button:hover {
+      background: #a62eff;
+      transform: translateY(-2px);
+    }
+    .file-list {
+      margin-top: 30px;
+      display: grid;
+      gap: 10px;
+    }
+    .file-item {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 15px 20px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background 0.2s;
+    }
+    .file-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .file-icon {
+      font-size: 24px;
+    }
+    .file-name {
+      font-weight: 500;
+      color: #fff;
+    }
+    .file-meta {
+      font-size: 13px;
+      color: #888;
+    }
+    .play-btn {
+      padding: 6px 15px;
+      background: transparent;
+      border: 1px solid #9300ff;
+      color: #9300ff;
+      border-radius: 4px;
+      font-size: 13px;
+      text-decoration: none;
+    }
+    .play-btn:hover {
+      background: #9300ff;
+      color: white;
+    }
+    .loader {
+      text-align: center;
+      padding: 40px;
+      color: #9300ff;
+      font-weight: bold;
+    }
+    .error {
+      color: #ff4444;
+      text-align: center;
+      padding: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Yandex Folder Explorer</h1>
+      <p>Введите ссылку на ПАПКУ для получения списка файлов</p>
+    </div>
+
+    <div class="input-group">
+      <input type="text" id="folderUrl" placeholder="https://disk.yandex.ru/d/..." />
+      <button onclick="exploreFolder()">Открыть папку</button>
+    </div>
+
+    <div id="status"></div>
+    <div class="file-list" id="fileList"></div>
+  </div>
+
+  <script>
+    async function exploreFolder() {
+      const url = document.getElementById('folderUrl').value.trim();
+      if (!url) return;
+
+      const listDiv = document.getElementById('fileList');
+      const statusDiv = document.getElementById('status');
+      
+      listDiv.innerHTML = '';
+      statusDiv.innerHTML = '<div class="loader">Получаем содержимое папки...</div>';
+
+      try {
+        // Запрашиваем ресурсы папки. Лимит 100 файлов для начала.
+        const api = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(url)}&limit=100`;
+        const resp = await fetch(api);
+        const data = await resp.json();
+
+        if (data.error) {
+          throw new Error(data.message || 'Ошибка API');
+        }
+
+        if (data.type !== 'dir') {
+          throw new Error('Это не папка. Используйте ссылку на папку.');
+        }
+
+        statusDiv.innerHTML = `<h3>Содержимое папки: ${data.name}</h3>`;
+        
+        const items = data._embedded.items;
+        if (!items || items.length === 0) {
+          listDiv.innerHTML = '<div class="error">Папка пуста</div>';
+          return;
+        }
+
+        // Фильтруем только видео (или показываем всё)
+        items.forEach(item => {
+          const isVideo = item.media_type === 'video';
+          const div = document.createElement('div');
+          div.className = 'file-item';
+          
+          const sizeMb = (item.size / (1024 * 1024)).toFixed(1);
+          
+          // Создаем ссылку на плеер (предполагаем что плеер лежит в этой же папке)
+          // Мы используем public_url самого файла если он есть, 
+          // или конструируем из папки + путь (но для публичных ссылок лучше использовать public_key файла)
+          const playerUrl = `Yandex Video Player v1.7.html?v=${encodeURIComponent(item.public_url || item.public_key)}`;
+
+          div.innerHTML = `
+            <div class="file-info">
+              <span class="file-icon">${isVideo ? '🎬' : '📁'}</span>
+              <div>
+                <div class="file-name">${item.name}</div>
+                <div class="file-meta">${isVideo ? 'Видео' : 'Файл'} • ${sizeMb} MB</div>
+              </div>
+            </div>
+            ${isVideo ? `<a href="${playerUrl}" class="play-btn" target="_blank">Смотреть</a>` : ''}
+          `;
+          listDiv.appendChild(div);
+        });
+
+      } catch (e) {
+        statusDiv.innerHTML = `<div class="error">Ошибка: ${e.message}</div>`;
+      }
+    }
+
+    // Авто-запуск если есть параметр в URL
+    const p = new URLSearchParams(window.location.search);
+    if (p.get('d')) {
+      document.getElementById('folderUrl').value = p.get('d');
+      exploreFolder();
+    }
+  </script>
+</body>
+
+</html>
