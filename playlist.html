@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="referrer" content="no-referrer" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Yandex Player v2.0 - Playlist Edition</title>
+  <title>Yandex Video Player v2.0 - Playlist Edition</title>
   <style>
     :root {
       --accent: #9300ff;
@@ -14,229 +14,297 @@
       --text: #eee;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       height: 100vh;
-      background: var(--bg);
+      background: #0f1116;
+      background: -webkit-linear-gradient(90deg, #0f1116, #1a1b22);
       background: linear-gradient(90deg, #0f1116, #1a1b22);
-      color: var(--text);
-      font-family: 'Segoe UI', Arial, sans-serif;
+      color: white;
+      font-family: Arial, sans-serif;
       display: flex;
       overflow: hidden;
     }
 
-    /* MAIN PLAYER AREA */
+    /* MAIN CONTENT (PLAYER) */
     .main-content {
       flex: 1;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
       position: relative;
-      background: #000;
     }
 
-    .video-container {
-      flex: 1;
+    .player-wrap {
+      width: 100%;
+      max-width: 1200px;
+      aspect-ratio: 16 / 9;
+    }
+
+    .player {
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
       position: relative;
+      height: 100%;
+    }
+
+    /* SIDEBAR (PLAYLIST) */
+    .sidebar {
+      width: 380px;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(15px);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      z-index: 200;
+    }
+
+    .sidebar-header {
+      padding: 25px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(147, 0, 255, 0.05);
+    }
+
+    .sidebar-header h2 {
+      margin: 0;
+      font-size: 20px;
+      color: var(--accent);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .playlist {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+    }
+
+    .playlist::-webkit-scrollbar { width: 6px; }
+    .playlist::-webkit-scrollbar-track { background: transparent; }
+    .playlist::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+    .playlist-item {
+      padding: 15px;
+      margin-bottom: 10px;
+      background: var(--panel);
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .playlist-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(-5px);
+    }
+
+    .playlist-item.active {
+      background: rgba(147, 0, 255, 0.15);
+      border-color: var(--accent);
+      box-shadow: 0 0 15px rgba(147, 0, 255, 0.2);
+    }
+
+    .playlist-item .icon { font-size: 22px; opacity: 0.7; }
+    .playlist-item.active .icon { opacity: 1; color: var(--accent); }
+
+    .playlist-item .info { flex: 1; overflow: hidden; }
+    .playlist-item .name {
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .playlist-item .meta { font-size: 11px; color: #777; }
+
+    /* PLAYER COMPONENTS (FROM V1.9) */
+    .video-wrap {
+      position: relative;
+      background: black;
+      cursor: pointer;
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
     }
 
     video {
       max-width: 100%;
       max-height: 100%;
-      width: 100%;
-      height: 100%;
-      background: #000;
-    }
-
-    /* PLAYLIST SIDEBAR */
-    .sidebar {
-      width: 350px;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(10px);
-      border-left: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      flex-direction: column;
-      transition: width 0.3s;
-    }
-
-    .sidebar-header {
-      padding: 20px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(147, 0, 255, 0.1);
-    }
-
-    .sidebar-header h2 {
-      margin: 0;
-      font-size: 18px;
-      color: var(--accent);
-    }
-
-    .playlist {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px;
-    }
-
-    .playlist::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .playlist::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .playlist::-webkit-scrollbar-thumb {
-      background: var(--accent);
-      border-radius: 3px;
-    }
-
-    .playlist-item {
-      padding: 12px 15px;
-      margin-bottom: 8px;
-      background: var(--panel);
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: all 0.2s;
-      border: 1px solid transparent;
-    }
-
-    .playlist-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateX(-5px);
-    }
-
-    .playlist-item.active {
-      background: rgba(147, 0, 255, 0.2);
-      border-color: var(--accent);
-    }
-
-    .playlist-item .icon {
-      font-size: 20px;
-    }
-
-    .playlist-item .info {
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .playlist-item .name {
-      font-size: 14px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       display: block;
+      background: black;
     }
 
-    .playlist-item .meta {
-      font-size: 11px;
-      color: #888;
-    }
-
-    /* OVERLAYS & LOADER */
     .loader {
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.8);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 100;
+      background: rgba(0, 0, 0, .3);
+      z-index: 150;
       font-size: 18px;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* TITLE OVERLAY */
-    .video-title {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      padding: 20px;
-      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
-      z-index: 10;
       pointer-events: none;
-      transition: opacity 0.3s;
     }
 
-    /* CUSTOM CONTROLS (Minimal) */
-    .controls {
+    .hidden { display: none !important; }
+
+    .poster-layer {
       position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 20px;
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-      z-index: 10;
+      inset: 0;
+      background-color: black;
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: 15;
+      transition: opacity 0.6s ease;
+      opacity: 0;
+      pointer-events: none;
     }
 
-    .progress-bar {
-      height: 4px;
-      background: rgba(255, 255, 255, 0.2);
-      cursor: pointer;
-      margin-bottom: 15px;
-      position: relative;
-    }
+    .poster-layer.visible { opacity: 1; }
 
-    .progress-fill {
-      height: 100%;
-      background: var(--accent);
-      width: 0%;
-    }
-
-    .btns {
+    .play-overlay {
+      position: absolute;
+      inset: 0;
       display: flex;
       align-items: center;
-      gap: 20px;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: .2s;
+      color: var(--accent);
+      background: rgba(0, 0, 0, .15);
+      z-index: 20;
     }
 
-    .btn {
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      padding: 5px;
-      opacity: 0.8;
-      transition: 0.2s;
-    }
+    .play-overlay svg { width: 80px; height: 80px; }
+    .play-overlay.show { opacity: 1; }
 
-    .btn:hover {
+    .video-controls {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 110;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 70%, transparent 100%);
+      padding: 30px 0 0 0;
       opacity: 1;
-      transform: scale(1.1);
+      transition: opacity .3s;
     }
 
-    .btn svg {
-      width: 28px;
-      height: 28px;
-      fill: currentColor;
+    .video-controls.hidden-ui { opacity: 0; pointer-events: none; }
+
+    .video-title-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      padding: 25px 25px 80px 25px;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+      font-size: 22px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 95;
+      transition: opacity 0.3s;
+      pointer-events: none;
     }
 
-    .time {
-      font-family: monospace;
-      font-size: 14px;
+    .video-title-overlay.hidden-ui { opacity: 0; }
+
+    .progress-wrapper { padding: 0 15px; margin-bottom: 5px; }
+    .progress-container {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      position: relative;
+      transition: height 0.1s;
+    }
+    .progress-container:hover { height: 10px; }
+    .progress-bar { height: 100%; width: 0%; background: var(--accent); }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 15px 15px 15px;
     }
 
-    @media (max-width: 800px) {
-      body {
-        flex-direction: column;
-      }
+    .left-controls, .right-controls { display: flex; align-items: center; gap: 8px; }
+    .seek-group { display: flex; gap: 2px; margin-right: 5px; }
 
-      .sidebar {
-        width: 100%;
-        height: 300px;
-      }
+    .icon-btn {
+      background: none; border: none; color: white;
+      font-size: 24px; padding: 5px; cursor: pointer;
+      opacity: 0.9; transition: opacity 0.2s, transform 0.1s;
+      display: flex; align-items: center; justify-content: center;
+      width: 48px; height: 48px;
+    }
+    .icon-btn svg { width: 30px; height: 30px; }
+    .icon-btn:hover { opacity: 1; transform: scale(1.1); }
+
+    .time-display { font-size: 15px; color: #eee; font-family: monospace; margin-left: 10px; }
+
+    #volumeSlider {
+      width: 100px; height: 6px; -webkit-appearance: none;
+      background: rgba(255, 255, 255, 0.3); border-radius: 3px;
+      outline: none; cursor: pointer;
+    }
+    #volumeSlider::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 14px; height: 14px;
+      background: white; border-radius: 50%; cursor: pointer;
+    }
+
+    .start-menu {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      z-index: 100; display: flex; flex-direction: column; align-items: center;
+      transition: opacity 0.4s ease;
+    }
+
+    .big-play-btn {
+      background: none; border: none; color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.3s;
+      filter: drop-shadow(0 0 20px rgba(147, 0, 255, 0.4));
+    }
+    .big-play-btn:hover { transform: scale(1.15); filter: drop-shadow(0 0 30px rgba(147, 0, 255, 0.6)); }
+    .big-play-btn svg { width: 110px; height: 110px; }
+
+    #continueBtn {
+      padding: 12px 25px; font-size: 15px; font-weight: bold;
+      background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+      color: white; border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 30px; cursor: pointer; transition: all 0.2s; margin-top: 20px;
+    }
+    #continueBtn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+
+    .video-wrap.dimmed::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(0, 0, 0, 0.7); z-index: 90;
+      pointer-events: none; transition: opacity 0.4s ease;
+    }
+
+    @media (max-width: 1000px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; height: 350px; border-left: none; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+      .main-content { padding: 10px; }
     }
   </style>
 </head>
@@ -244,43 +312,109 @@
 <body>
 
   <div class="main-content">
-    <div id="loader" class="loader hidden">Загрузка...</div>
+    <div class="player-wrap" id="playerWrap">
+      <div class="player" id="player">
+        <div class="video-wrap" id="videoWrap">
+          <div class="loader hidden" id="loader">Загружаем...</div>
+          <div class="play-overlay" id="playOverlay"></div>
+          <div class="poster-layer" id="posterLayer"></div>
 
-    <div class="video-title" id="videoTitle">Выберите видео из плейлиста</div>
+          <div id="startMenu" class="start-menu hidden">
+            <button id="bigPlayBtn" class="big-play-btn" title="Начать сначала">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+            </button>
+            <button id="continueBtn" class="hidden">Продолжить</button>
+          </div>
 
-    <div class="video-container" id="videoContainer">
-      <video id="video" controls></video>
+          <video id="video"></video>
+          <audio id="externalAudio"></audio>
+
+          <div class="video-title-overlay" id="videoTitleOverlay"></div>
+
+          <div class="video-controls" id="videoControls">
+            <div class="progress-wrapper">
+              <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+              </div>
+            </div>
+
+            <div class="controls-row">
+              <div class="left-controls">
+                <button id="mainPlayBtn" class="icon-btn" title="Воспроизвести">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                </button>
+                <div class="seek-group">
+                  <button id="backBtn" class="icon-btn" title="Назад 10 сек">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z" /></svg>
+                  </button>
+                  <button id="forwardBtn" class="icon-btn" title="Вперед 10 сек">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z" /></svg>
+                  </button>
+                </div>
+                <button id="muteBtn" class="icon-btn" title="Громкость">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" /></svg>
+                </button>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1">
+                <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+              </div>
+              <div class="right-controls">
+                <button id="fullscreenBtn" class="icon-btn">⛶</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="sidebar" id="sidebar">
+  <div class="sidebar">
     <div class="sidebar-header">
       <h2 id="folderName">Плейлист</h2>
     </div>
     <div class="playlist" id="playlist">
-      <div style="padding: 20px; text-align: center; color: #888;">
-        Добавьте ?d=ССЫЛКА_НА_ПАПКУ в URL
-      </div>
+      <div style="padding: 20px; text-align: center; color: #888;">Загрузка списка...</div>
     </div>
   </div>
 
   <script>
     const video = document.getElementById('video');
-    const playlistDiv = document.getElementById('playlist');
-    const videoTitle = document.getElementById('videoTitle');
-    const folderNameElem = document.getElementById('folderName');
+    const videoWrap = document.getElementById('videoWrap');
     const loader = document.getElementById('loader');
+    const progressBar = document.getElementById('progressBar');
+    const progressContainer = document.getElementById('progressContainer');
+    const videoControls = document.getElementById('videoControls');
+    const mainPlayBtn = document.getElementById('mainPlayBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const externalAudio = document.getElementById('externalAudio');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const videoTitleOverlay = document.getElementById('videoTitleOverlay');
+    const playOverlay = document.getElementById('playOverlay');
+    const posterLayer = document.getElementById('posterLayer');
+    const startMenu = document.getElementById('startMenu');
+    const bigPlayBtn = document.getElementById('bigPlayBtn');
+    const continueBtn = document.getElementById('continueBtn');
+    const backBtn = document.getElementById('backBtn');
+    const forwardBtn = document.getElementById('forwardBtn');
+    
+    const playlistDiv = document.getElementById('playlist');
+    const folderNameElem = document.getElementById('folderName');
 
+    let currentVideoKey = null;
+    let uiHideTimeout;
+    let hasStartedPlaying = false;
+    let menuAlreadyShown = false;
+    
     let playlistItems = [];
     let currentIndex = -1;
 
+    // --- PLAYLIST LOGIC ---
+
     async function loadPlaylist(folderUrl) {
-      loader.classList.remove('hidden');
       try {
-        const api = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(folderUrl)}&limit=100`;
+        const api = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(folderUrl)}&limit=100&fields=name,_embedded.items.name,_embedded.items.public_url,_embedded.items.public_key,_embedded.items.size,_embedded.items.media_type`;
         const resp = await fetch(api);
         const data = await resp.json();
-
         if (data.error) throw new Error(data.message);
 
         folderNameElem.textContent = data.name || 'Плейлист';
@@ -288,15 +422,12 @@
 
         renderPlaylist();
 
-        // Автоматически запускаем первое видео, если в URL нет v
         const p = new URLSearchParams(window.location.search);
         if (!p.get('v') && playlistItems.length > 0) {
-          playVideo(0);
+          playFromPlaylist(0);
         }
       } catch (e) {
         playlistDiv.innerHTML = `<div style="color:red; padding:20px;">Ошибка: ${e.message}</div>`;
-      } finally {
-        loader.classList.add('hidden');
       }
     }
 
@@ -305,56 +436,219 @@
       playlistItems.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = `playlist-item ${index === currentIndex ? 'active' : ''}`;
-        div.onclick = () => playVideo(index);
-
+        div.onclick = () => playFromPlaylist(index);
         const sizeMb = (item.size / (1024 * 1024)).toFixed(1);
-
-        div.innerHTML = `
-          <div class="icon">🎬</div>
-          <div class="info">
-            <div class="name" title="${item.name}">${item.name}</div>
-            <div class="meta">${sizeMb} MB</div>
-          </div>
-        `;
+        div.innerHTML = `<div class="icon">🎬</div><div class="info"><div class="name">${item.name}</div><div class="meta">${sizeMb} MB</div></div>`;
         playlistDiv.appendChild(div);
       });
     }
 
-    async function playVideo(index) {
+    function playFromPlaylist(index) {
       if (index < 0 || index >= playlistItems.length) return;
-
       currentIndex = index;
       const item = playlistItems[index];
-
-      videoTitle.textContent = item.name;
-      document.title = item.name;
       renderPlaylist();
+      loadVideo(item.public_url || item.public_key);
+    }
 
-      loader.classList.remove('hidden');
-      try {
-        const api = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${encodeURIComponent(item.public_url || item.public_key)}`;
-        const resp = await fetch(api);
-        const data = await resp.json();
+    // --- PLAYER CORE LOGIC (FROM V1.9) ---
 
-        if (!data.href) throw new Error();
+    function showUI() {
+      videoControls.classList.remove('hidden-ui');
+      videoTitleOverlay.classList.remove('hidden-ui');
+      clearTimeout(uiHideTimeout);
+      uiHideTimeout = setTimeout(() => {
+        if (!video.paused) {
+          videoControls.classList.add('hidden-ui');
+          videoTitleOverlay.classList.add('hidden-ui');
+        }
+      }, 3000);
+    }
 
-        video.src = data.href;
-        video.play();
-      } catch (e) {
-        alert('Ошибка загрузки видео');
-      } finally {
-        loader.classList.add('hidden');
+    function formatTime(seconds) {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = Math.floor(seconds % 60);
+      if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    function updateTimeDisplay() {
+      const current = formatTime(video.currentTime || 0);
+      const total = formatTime(video.duration || 0);
+      timeDisplay.textContent = `${current} / ${total}`;
+    }
+
+    function updateMuteIcon() {
+      const vol = externalAudio.src ? externalAudio.volume : video.volume;
+      const isMuted = externalAudio.src ? externalAudio.muted : video.muted;
+      if (isMuted || vol === 0) {
+        muteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+      } else if (vol < 0.5) {
+        muteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>';
+      } else {
+        muteBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
       }
     }
 
-    // Авто-переключение на следующее видео
-    video.onended = () => {
-      if (currentIndex < playlistItems.length - 1) {
-        playVideo(currentIndex + 1);
-      }
+    function togglePlay(silent = false) {
+      if (video.paused) { video.play(); if (!silent) showOverlay('▶'); }
+      else { video.pause(); if (!silent) showOverlay('⏸'); }
+      hideMenu();
+    }
+
+    function hideMenu() { startMenu.classList.add('hidden'); videoWrap.classList.remove('dimmed'); }
+
+    function showOverlay(icon) {
+      playOverlay.innerHTML = icon === '▶' ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>' : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+      playOverlay.classList.add('show');
+      clearTimeout(playOverlay.hideTimeout);
+      playOverlay.hideTimeout = setTimeout(() => playOverlay.classList.remove('show'), 1000);
+    }
+
+    function restoreProgress() {
+      if (menuAlreadyShown || hasStartedPlaying) return;
+      menuAlreadyShown = true;
+      const savedTime = currentVideoKey ? localStorage.getItem(currentVideoKey) : null;
+      loader.classList.add('hidden');
+      startMenu.classList.remove('hidden');
+      videoWrap.classList.add('dimmed');
+      if (savedTime && Number(savedTime) > 10) {
+        const displayTime = Math.max(0, Number(savedTime) - 5);
+        const seconds = Math.floor(displayTime);
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        continueBtn.textContent = `Продолжить с ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        continueBtn.classList.remove('hidden');
+      } else { continueBtn.classList.add('hidden'); }
+    }
+
+    bigPlayBtn.onclick = (e) => { e.stopPropagation(); video.currentTime = 0; togglePlay(true); };
+    continueBtn.onclick = (e) => {
+      e.stopPropagation();
+      const savedTime = localStorage.getItem(currentVideoKey);
+      if (savedTime) video.currentTime = Math.max(0, Number(savedTime) - 5);
+      togglePlay(true);
     };
 
-    // Инициализация из URL
+    async function loadVideo(publicUrl) {
+      try {
+        video.pause(); video.src = "";
+        hasStartedPlaying = false; menuAlreadyShown = false;
+        startMenu.classList.add('hidden'); continueBtn.classList.add('hidden');
+        posterLayer.classList.remove('visible'); videoWrap.classList.remove('dimmed');
+        loader.classList.remove('hidden'); loader.textContent = 'Загружаем...';
+
+        currentVideoKey = 'video-progress-' + publicUrl;
+        
+        const api = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=' + encodeURIComponent(publicUrl);
+        const resp = await fetch(api);
+        const data = await resp.json();
+        if (!data.href) throw new Error();
+
+        // Metadata
+        try {
+          const mApi = 'https://cloud-api.yandex.net/v1/disk/public/resources?public_key=' + encodeURIComponent(publicUrl) + '&preview_size=1280x720&fields=name,preview';
+          const mResp = await fetch(mApi);
+          const mData = await mResp.json();
+          if (mData.name) {
+            videoTitleOverlay.textContent = mData.name;
+            document.title = mData.name + " - Player";
+            restoreProgress();
+          }
+          if (mData.preview) {
+            const img = new Image();
+            img.onload = () => { posterLayer.style.backgroundImage = `url('${mData.preview}')`; posterLayer.classList.add('visible'); };
+            img.src = mData.preview;
+          }
+        } catch (e) { }
+
+        video.src = data.href;
+        
+        // Single video mode external audio (optional)
+        const aParam = new URLSearchParams(window.location.search).get('a');
+        if (aParam && currentIndex === -1) {
+           const aApi = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=' + encodeURIComponent(aParam);
+           const aResp = await fetch(aApi); const aData = await aResp.json();
+           if (aData.href) { externalAudio.src = aData.href; video.muted = true; }
+        } else { video.muted = false; }
+
+        updateMuteIcon();
+        video.oncanplay = () => restoreProgress();
+      } catch (err) { loader.textContent = 'Ошибка загрузки'; }
+    }
+
+    // --- LISTENERS ---
+    mainPlayBtn.onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    videoWrap.onclick = () => { togglePlay(); showUI(); };
+    videoControls.onclick = (e) => e.stopPropagation();
+
+    video.onplay = () => {
+      hasStartedPlaying = true; hideMenu();
+      mainPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+      posterLayer.classList.remove('visible');
+      if (externalAudio.src) { externalAudio.play(); externalAudio.currentTime = video.currentTime; }
+      showUI();
+    };
+    video.onpause = () => {
+      mainPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+      if (externalAudio.src) externalAudio.pause();
+      showUI();
+    };
+    video.onended = () => {
+      localStorage.removeItem(currentVideoKey);
+      if (currentIndex !== -1 && currentIndex < playlistItems.length - 1) {
+        playFromPlaylist(currentIndex + 1);
+      } else {
+        mainPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+        showUI();
+      }
+    };
+    video.onseeking = () => { if (externalAudio.src) externalAudio.currentTime = video.currentTime; };
+    setInterval(() => {
+      if (externalAudio.src && !video.paused) {
+        const diff = Math.abs(externalAudio.currentTime - video.currentTime);
+        if (diff > 0.3) externalAudio.currentTime = video.currentTime;
+      }
+    }, 1000);
+    video.addEventListener('mousemove', showUI);
+    backBtn.onclick = (e) => { e.stopPropagation(); video.currentTime -= 10; showOverlay('⏪'); showUI(); };
+    forwardBtn.onclick = (e) => { e.stopPropagation(); video.currentTime += 10; showOverlay('⏩'); showUI(); };
+    fullscreenBtn.onclick = async (e) => {
+      e.stopPropagation();
+      if (!document.fullscreenElement) await videoWrap.requestFullscreen(); else await document.exitFullscreen();
+      showUI();
+    };
+    video.ontimeupdate = () => {
+      if (!video.duration) return;
+      progressBar.style.width = (video.currentTime / video.duration * 100) + '%';
+      updateTimeDisplay();
+    };
+    video.onloadedmetadata = updateTimeDisplay;
+    progressContainer.onclick = (e) => {
+      e.stopPropagation();
+      const rect = progressContainer.getBoundingClientRect();
+      video.currentTime = (e.clientX - rect.left) / rect.width * video.duration;
+      showUI();
+    };
+    
+    setInterval(() => { if (!video.paused && video.currentTime > 0) localStorage.setItem(currentVideoKey, video.currentTime); }, 5000);
+    window.addEventListener('beforeunload', () => { if (!video.paused) localStorage.setItem(currentVideoKey, video.currentTime); });
+    
+    muteBtn.onclick = (e) => {
+      e.stopPropagation();
+      const newState = externalAudio.src ? !externalAudio.muted : !video.muted;
+      video.muted = newState; externalAudio.muted = newState;
+      updateMuteIcon();
+    };
+    volumeSlider.oninput = (e) => {
+      e.stopPropagation();
+      video.volume = volumeSlider.value; externalAudio.volume = volumeSlider.value;
+      updateMuteIcon();
+    };
+
+    // --- INIT ---
     const params = new URLSearchParams(window.location.search);
     const d = params.get('d');
     const v = params.get('v');
@@ -362,20 +656,10 @@
     if (d) {
       loadPlaylist(d);
     } else if (v) {
-      // Если передано только видео
-      playlistDiv.innerHTML = '<div style="padding:20px; color:#888;">Режим одиночного видео</div>';
-      playSingleVideo(v);
-    }
-
-    async function playSingleVideo(publicUrl) {
-      loader.classList.remove('hidden');
-      try {
-        const api = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${encodeURIComponent(publicUrl)}`;
-        const resp = await fetch(api);
-        const data = await resp.json();
-        video.src = data.href;
-        video.play();
-      } catch (e) { } finally { loader.classList.add('hidden'); }
+      playlistDiv.innerHTML = '<div style="padding:20px; color:#888;">Одиночный режим</div>';
+      loadVideo(v);
+    } else if (localStorage.getItem('last-video-url')) {
+      loadVideo(localStorage.getItem('last-video-url'));
     }
   </script>
 </body>
