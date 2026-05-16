@@ -177,10 +177,8 @@
           
           const sizeMb = (item.size / (1024 * 1024)).toFixed(1);
           
-          // Создаем ссылку на плеер (предполагаем что плеер лежит в этой же папке)
-          // Мы используем public_url самого файла если он есть, 
-          // или конструируем из папки + путь (но для публичных ссылок лучше использовать public_key файла)
-          const playerUrl = `Yandex Video Player v1.7.html?v=${encodeURIComponent(item.public_url || item.public_key)}`;
+          // Создаем ссылку на плеер (VideoPlayer.html)
+          const playerUrl = `VideoPlayer.html?v=${encodeURIComponent(item.public_url || item.public_key)}`;
 
           div.innerHTML = `
             <div class="file-info">
@@ -190,7 +188,7 @@
                 <div class="file-meta">${isVideo ? 'Видео' : 'Файл'} • ${sizeMb} MB</div>
               </div>
             </div>
-            ${isVideo ? `<a href="${playerUrl}" class="play-btn" target="_blank">Смотреть</a>` : ''}
+            ${isVideo ? `<a href="${playerUrl}" class="play-btn">Смотреть</a>` : ''}
           `;
           listDiv.appendChild(div);
         });
