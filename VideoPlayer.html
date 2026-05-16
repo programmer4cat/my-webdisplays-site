@@ -10,7 +10,9 @@
   <title>Yandex Video Player</title>
 
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -24,7 +26,9 @@
       padding: 24px;
     }
 
-    .player-wrap { width: min(980px, 96vw); }
+    .player-wrap {
+      width: min(980px, 96vw);
+    }
 
     .player {
       background: #000;
@@ -95,7 +99,9 @@
       pointer-events: none;
     }
 
-    .hidden { display: none !important; }
+    .hidden {
+      display: none !important;
+    }
 
     /* POSTER LAYER */
     .poster-layer {
@@ -111,7 +117,9 @@
       pointer-events: none;
     }
 
-    .poster-layer.visible { opacity: 1; }
+    .poster-layer.visible {
+      opacity: 1;
+    }
 
     /* PLAY OVERLAY */
     .play-overlay {
@@ -133,7 +141,9 @@
       height: 80px;
     }
 
-    .play-overlay.show { opacity: 1; }
+    .play-overlay.show {
+      opacity: 1;
+    }
 
     /* VIDEO CONTROLS */
     .video-controls {
@@ -145,12 +155,16 @@
       flex-direction: column;
       z-index: 110;
       background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 70%, transparent 100%);
-      padding: 30px 0 0 0; /* Reduced top padding as requested */
+      padding: 30px 0 0 0;
+      /* Reduced top padding as requested */
       opacity: 1;
       transition: opacity .3s;
     }
 
-    .video-controls.hidden-ui { opacity: 0; pointer-events: none; }
+    .video-controls.hidden-ui {
+      opacity: 0;
+      pointer-events: none;
+    }
 
     .video-title {
       position: absolute;
@@ -166,14 +180,19 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      z-index: 45;
+      z-index: 95;
       transition: opacity 0.3s;
       pointer-events: none;
     }
 
-    .video-title.hidden-ui { opacity: 0; }
+    .video-title.hidden-ui {
+      opacity: 0;
+    }
 
-    .progress-wrapper { padding: 0 15px; margin-bottom: 5px; }
+    .progress-wrapper {
+      padding: 0 15px;
+      margin-bottom: 5px;
+    }
 
     .progress-container {
       height: 8px;
@@ -183,9 +202,15 @@
       transition: height 0.1s;
     }
 
-    .progress-container:hover { height: 12px; }
+    .progress-container:hover {
+      height: 12px;
+    }
 
-    .progress-bar { height: 100%; width: 0%; background: #9300ff; }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #9300ff;
+    }
 
     .controls-row {
       display: flex;
@@ -194,8 +219,13 @@
       padding: 5px 15px 15px 15px;
     }
 
-    .left-controls, .right-controls { display: flex; align-items: center; gap: 8px; }
-    
+    .left-controls,
+    .right-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .seek-group {
       display: flex;
       gap: 2px;
@@ -218,11 +248,22 @@
       height: 48px;
     }
 
-    .icon-btn svg { width: 30px; height: 30px; }
+    .icon-btn svg {
+      width: 30px;
+      height: 30px;
+    }
 
-    .icon-btn:hover { opacity: 1; transform: scale(1.1); }
+    .icon-btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
 
-    .time-display { font-size: 16px; color: #eee; font-family: monospace; margin-left: 10px; }
+    .time-display {
+      font-size: 16px;
+      color: #eee;
+      font-family: monospace;
+      margin-left: 10px;
+    }
 
     #volumeSlider {
       width: 100px;
@@ -257,7 +298,10 @@
       margin-top: 20px;
     }
 
-    #continueBtn:hover { background: rgba(255, 255, 255, 0.25); transform: scale(1.05); }
+    #continueBtn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.05);
+    }
 
     /* START MENU CONTAINER */
     .start-menu {
@@ -289,7 +333,10 @@
       filter: drop-shadow(0 0 30px rgba(147, 0, 255, 0.6));
     }
 
-    .big-play-btn svg { width: 120px; height: 120px; }
+    .big-play-btn svg {
+      width: 120px;
+      height: 120px;
+    }
   </style>
 
 </head>
@@ -306,7 +353,9 @@
 
         <div id="startMenu" class="start-menu hidden">
           <button id="bigPlayBtn" class="big-play-btn" title="Начать сначала">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
           </button>
           <button id="continueBtn" class="hidden">Продолжить</button>
         </div>
@@ -326,21 +375,30 @@
           <div class="controls-row">
             <div class="left-controls">
               <button id="mainPlayBtn" class="icon-btn" title="Воспроизвести">
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
               </button>
-              
+
               <div class="seek-group">
                 <button id="backBtn" class="icon-btn" title="Назад 10 сек">
-                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z" />
+                  </svg>
                 </button>
 
                 <button id="forwardBtn" class="icon-btn" title="Вперед 10 сек">
-                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                    <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z" />
+                  </svg>
                 </button>
               </div>
 
               <button id="muteBtn" class="icon-btn" title="Громкость">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                </svg>
               </button>
               <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="1">
               <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
@@ -463,7 +521,7 @@
     function restoreProgress() {
       if (menuAlreadyShown || hasStartedPlaying) return;
       menuAlreadyShown = true;
-      
+
       const savedTime = currentVideoKey ? localStorage.getItem(currentVideoKey) : null;
       loader.classList.add('hidden');
       startMenu.classList.remove('hidden');
@@ -495,7 +553,7 @@
       try {
         video.pause(); video.src = "";
         hasStartedPlaying = false; menuAlreadyShown = false;
-        
+
         startMenu.classList.add('hidden');
         continueBtn.classList.add('hidden');
         posterLayer.classList.remove('visible');
@@ -527,7 +585,7 @@
             img.onload = () => { posterLayer.style.backgroundImage = `url('${mData.preview}')`; posterLayer.classList.add('visible'); };
             img.src = mData.preview;
           }
-        } catch(e) {}
+        } catch (e) { }
 
         video.src = data.href;
         const aParam = new URLSearchParams(window.location.search).get('a');
@@ -537,7 +595,7 @@
           const aData = await aResp.json();
           if (aData.href) { externalAudio.src = aData.href; video.muted = true; }
         } else { video.muted = false; }
-        
+
         updateMuteIcon();
         video.oncanplay = () => restoreProgress();
 
@@ -598,4 +656,5 @@
     if (p.get('v')) loadVideo(p.get('v')); else if (localStorage.getItem('last-video-url')) loadVideo(localStorage.getItem('last-video-url'));
   </script>
 </body>
+
 </html>
