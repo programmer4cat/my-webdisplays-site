@@ -3,230 +3,380 @@
 
 <head>
   <meta charset="UTF-8" />
+  <meta name="referrer" content="no-referrer" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Yandex Folder Explorer</title>
+  <title>Yandex Player v2.0 - Playlist Edition</title>
   <style>
-    body {
-      background: #0f1116;
-      background: linear-gradient(90deg, #0f1116, #1a1b22);
-      color: #eee;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 40px;
-      margin: 0;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-    .input-group {
-      display: flex;
-      gap: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    }
-    input {
-      flex: 1;
-      padding: 12px 20px;
-      background: #000;
-      border: 1px solid #333;
-      color: white;
-      border-radius: 8px;
-      font-size: 16px;
-      outline: none;
-    }
-    input:focus {
-      border-color: #9300ff;
-    }
-    button {
-      padding: 12px 30px;
-      background: #9300ff;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 8px;
-      font-weight: bold;
-      transition: all 0.2s;
-    }
-    button:hover {
-      background: #a62eff;
-      transform: translateY(-2px);
-    }
-    .file-list {
-      margin-top: 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 65vh;
-      overflow-y: auto;
-      padding-right: 10px;
+    :root {
+      --accent: #9300ff;
+      --bg: #0f1116;
+      --panel: rgba(255, 255, 255, 0.05);
+      --text: #eee;
     }
 
-    /* Custom scrollbar */
-    .file-list::-webkit-scrollbar {
-      width: 8px;
+    * {
+      box-sizing: border-box;
     }
-    .file-list::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 4px;
+
+    body {
+      margin: 0;
+      height: 100vh;
+      background: var(--bg);
+      background: linear-gradient(90deg, #0f1116, #1a1b22);
+      color: var(--text);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      overflow: hidden;
     }
-    .file-list::-webkit-scrollbar-thumb {
-      background: #9300ff;
-      border-radius: 4px;
+
+    /* MAIN PLAYER AREA */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: #000;
     }
-    .file-list::-webkit-scrollbar-thumb:hover {
-      background: #a62eff;
+
+    .video-container {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
-    .file-item {
-      background: rgba(255, 255, 255, 0.03);
-      padding: 15px 20px;
+
+    video {
+      max-width: 100%;
+      max-height: 100%;
+      width: 100%;
+      height: 100%;
+      background: #000;
+    }
+
+    /* PLAYLIST SIDEBAR */
+    .sidebar {
+      width: 350px;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      transition: width 0.3s;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(147, 0, 255, 0.1);
+    }
+
+    .sidebar-header h2 {
+      margin: 0;
+      font-size: 18px;
+      color: var(--accent);
+    }
+
+    .playlist {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .playlist::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .playlist::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .playlist::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 3px;
+    }
+
+    .playlist-item {
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      background: var(--panel);
       border-radius: 8px;
+      cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      transition: background 0.2s;
+      gap: 12px;
+      transition: all 0.2s;
+      border: 1px solid transparent;
     }
-    .file-item:hover {
-      background: rgba(255, 255, 255, 0.08);
+
+    .playlist-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(-5px);
     }
-    .file-info {
-      display: flex;
-      align-items: center;
-      gap: 15px;
+
+    .playlist-item.active {
+      background: rgba(147, 0, 255, 0.2);
+      border-color: var(--accent);
     }
-    .file-icon {
-      font-size: 24px;
+
+    .playlist-item .icon {
+      font-size: 20px;
     }
-    .file-name {
-      font-weight: 500;
-      color: #fff;
+
+    .playlist-item .info {
+      flex: 1;
+      overflow: hidden;
     }
-    .file-meta {
-      font-size: 13px;
+
+    .playlist-item .name {
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+
+    .playlist-item .meta {
+      font-size: 11px;
       color: #888;
     }
-    .play-btn {
-      padding: 6px 15px;
-      background: transparent;
-      border: 1px solid #9300ff;
-      color: #9300ff;
-      border-radius: 4px;
-      font-size: 13px;
-      text-decoration: none;
-    }
-    .play-btn:hover {
-      background: #9300ff;
-      color: white;
-    }
+
+    /* OVERLAYS & LOADER */
     .loader {
-      text-align: center;
-      padding: 40px;
-      color: #9300ff;
-      font-weight: bold;
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      font-size: 18px;
     }
-    .error {
-      color: #ff4444;
-      text-align: center;
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* TITLE OVERLAY */
+    .video-title {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
       padding: 20px;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+      z-index: 10;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    /* CUSTOM CONTROLS (Minimal) */
+    .controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+      z-index: 10;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      margin-bottom: 15px;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+    }
+
+    .btns {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .btn {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 5px;
+      opacity: 0.8;
+      transition: 0.2s;
+    }
+
+    .btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .btn svg {
+      width: 28px;
+      height: 28px;
+      fill: currentColor;
+    }
+
+    .time {
+      font-family: monospace;
+      font-size: 14px;
+    }
+
+    @media (max-width: 800px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: 300px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Yandex Folder Explorer</h1>
-      <p>Введите ссылку на ПАПКУ для получения списка файлов</p>
-    </div>
 
-    <div class="input-group">
-      <input type="text" id="folderUrl" placeholder="https://disk.yandex.ru/d/..." />
-      <button onclick="exploreFolder()">Открыть папку</button>
-    </div>
+  <div class="main-content">
+    <div id="loader" class="loader hidden">Загрузка...</div>
 
-    <div id="status"></div>
-    <div class="file-list" id="fileList"></div>
+    <div class="video-title" id="videoTitle">Выберите видео из плейлиста</div>
+
+    <div class="video-container" id="videoContainer">
+      <video id="video" controls></video>
+    </div>
+  </div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2 id="folderName">Плейлист</h2>
+    </div>
+    <div class="playlist" id="playlist">
+      <div style="padding: 20px; text-align: center; color: #888;">
+        Добавьте ?d=ССЫЛКА_НА_ПАПКУ в URL
+      </div>
+    </div>
   </div>
 
   <script>
-    async function exploreFolder() {
-      const url = document.getElementById('folderUrl').value.trim();
-      if (!url) return;
+    const video = document.getElementById('video');
+    const playlistDiv = document.getElementById('playlist');
+    const videoTitle = document.getElementById('videoTitle');
+    const folderNameElem = document.getElementById('folderName');
+    const loader = document.getElementById('loader');
 
-      const listDiv = document.getElementById('fileList');
-      const statusDiv = document.getElementById('status');
-      
-      listDiv.innerHTML = '';
-      statusDiv.innerHTML = '<div class="loader">Получаем содержимое папки...</div>';
+    let playlistItems = [];
+    let currentIndex = -1;
 
+    async function loadPlaylist(folderUrl) {
+      loader.classList.remove('hidden');
       try {
-        // Запрашиваем ресурсы папки. Лимит 100 файлов для начала.
-        const api = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(url)}&limit=100`;
+        const api = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(folderUrl)}&limit=100`;
         const resp = await fetch(api);
         const data = await resp.json();
 
-        if (data.error) {
-          throw new Error(data.message || 'Ошибка API');
+        if (data.error) throw new Error(data.message);
+
+        folderNameElem.textContent = data.name || 'Плейлист';
+        playlistItems = data._embedded.items.filter(item => item.media_type === 'video');
+
+        renderPlaylist();
+
+        // Автоматически запускаем первое видео, если в URL нет v
+        const p = new URLSearchParams(window.location.search);
+        if (!p.get('v') && playlistItems.length > 0) {
+          playVideo(0);
         }
-
-        if (data.type !== 'dir') {
-          throw new Error('Это не папка. Используйте ссылку на папку.');
-        }
-
-        statusDiv.innerHTML = `<h3>Содержимое папки: ${data.name}</h3>`;
-        
-        const items = data._embedded.items;
-        if (!items || items.length === 0) {
-          listDiv.innerHTML = '<div class="error">Папка пуста</div>';
-          return;
-        }
-
-        // Фильтруем только видео (или показываем всё)
-        items.forEach(item => {
-          const isVideo = item.media_type === 'video';
-          const div = document.createElement('div');
-          div.className = 'file-item';
-          
-          const sizeMb = (item.size / (1024 * 1024)).toFixed(1);
-          
-          // Создаем ссылку на плеер (VideoPlayer.html)
-          const playerUrl = `VideoPlayer.html?v=${encodeURIComponent(item.public_url || item.public_key)}`;
-
-          div.innerHTML = `
-            <div class="file-info">
-              <span class="file-icon">${isVideo ? '🎬' : '📁'}</span>
-              <div>
-                <div class="file-name">${item.name}</div>
-                <div class="file-meta">${isVideo ? 'Видео' : 'Файл'} • ${sizeMb} MB</div>
-              </div>
-            </div>
-            ${isVideo ? `<a href="${playerUrl}" class="play-btn" target="_blank">Смотреть</a>` : ''}
-          `;
-          listDiv.appendChild(div);
-        });
-
       } catch (e) {
-        statusDiv.innerHTML = `<div class="error">Ошибка: ${e.message}</div>`;
+        playlistDiv.innerHTML = `<div style="color:red; padding:20px;">Ошибка: ${e.message}</div>`;
+      } finally {
+        loader.classList.add('hidden');
       }
     }
 
-    // Авто-запуск если есть параметр в URL
-    window.addEventListener('DOMContentLoaded', () => {
-      const p = new URLSearchParams(window.location.search);
-      const folderParam = p.get('d') || p.get('folder');
-      if (folderParam) {
-        document.getElementById('folderUrl').value = folderParam;
-        exploreFolder();
+    function renderPlaylist() {
+      playlistDiv.innerHTML = '';
+      playlistItems.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = `playlist-item ${index === currentIndex ? 'active' : ''}`;
+        div.onclick = () => playVideo(index);
+
+        const sizeMb = (item.size / (1024 * 1024)).toFixed(1);
+
+        div.innerHTML = `
+          <div class="icon">🎬</div>
+          <div class="info">
+            <div class="name" title="${item.name}">${item.name}</div>
+            <div class="meta">${sizeMb} MB</div>
+          </div>
+        `;
+        playlistDiv.appendChild(div);
+      });
+    }
+
+    async function playVideo(index) {
+      if (index < 0 || index >= playlistItems.length) return;
+
+      currentIndex = index;
+      const item = playlistItems[index];
+
+      videoTitle.textContent = item.name;
+      document.title = item.name;
+      renderPlaylist();
+
+      loader.classList.remove('hidden');
+      try {
+        const api = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${encodeURIComponent(item.public_url || item.public_key)}`;
+        const resp = await fetch(api);
+        const data = await resp.json();
+
+        if (!data.href) throw new Error();
+
+        video.src = data.href;
+        video.play();
+      } catch (e) {
+        alert('Ошибка загрузки видео');
+      } finally {
+        loader.classList.add('hidden');
       }
-    });
+    }
+
+    // Авто-переключение на следующее видео
+    video.onended = () => {
+      if (currentIndex < playlistItems.length - 1) {
+        playVideo(currentIndex + 1);
+      }
+    };
+
+    // Инициализация из URL
+    const params = new URLSearchParams(window.location.search);
+    const d = params.get('d');
+    const v = params.get('v');
+
+    if (d) {
+      loadPlaylist(d);
+    } else if (v) {
+      // Если передано только видео
+      playlistDiv.innerHTML = '<div style="padding:20px; color:#888;">Режим одиночного видео</div>';
+      playSingleVideo(v);
+    }
+
+    async function playSingleVideo(publicUrl) {
+      loader.classList.remove('hidden');
+      try {
+        const api = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${encodeURIComponent(publicUrl)}`;
+        const resp = await fetch(api);
+        const data = await resp.json();
+        video.src = data.href;
+        video.play();
+      } catch (e) { } finally { loader.classList.add('hidden'); }
+    }
   </script>
 </body>
 
