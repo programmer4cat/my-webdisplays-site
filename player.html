@@ -8,6 +8,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Yandex Video Player</title>
+  <link rel="preload" href="logo.webp" as="image" />
+  <link rel="preload" href="playicon.webp" as="image" />
 
   <style>
     * {
@@ -305,39 +307,106 @@
       transform: scale(1.05);
     }
 
-    /* START MENU CONTAINER */
-    .start-menu {
+    /* INTRO LOGO */
+    .intro-logo {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 100;
       display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: auto;
+      cursor: pointer;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .intro-logo-img {
+      max-width: min(340px, 60%);
+      max-height: 140px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 25px rgba(147, 0, 255, 0.45)) drop-shadow(0 4px 15px rgba(0, 0, 0, 0.6));
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    @keyframes logoCycle {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.92);
+      }
+      25% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      75% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.04);
+      }
+    }
+
+    .intro-logo.animate {
+      animation: logoCycle 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    /* START MENU CONTAINER */
+    .start-menu {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.92);
+      z-index: 100;
+      display: flex;
       flex-direction: column;
       align-items: center;
-      transition: opacity 0.4s ease;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .start-menu.visible {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: auto;
     }
 
     .big-play-btn {
       background: none;
       border: none;
-      color: #9300ff;
+      padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.3s;
-      filter: drop-shadow(0 0 20px rgba(147, 0, 255, 0.4));
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      filter: drop-shadow(0 0 25px rgba(147, 0, 255, 0.5));
     }
 
     .big-play-btn:hover {
       transform: scale(1.15);
-      filter: drop-shadow(0 0 30px rgba(147, 0, 255, 0.6));
+      filter: drop-shadow(0 0 35px rgba(147, 0, 255, 0.8));
     }
 
-    .big-play-btn svg {
+    .big-play-btn:active {
+      transform: scale(1.05);
+    }
+
+    .big-play-icon {
       width: 120px;
       height: 120px;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
     }
   </style>
 
@@ -353,11 +422,13 @@
         <div class="play-overlay" id="playOverlay"></div>
         <div class="poster-layer" id="posterLayer"></div>
 
+        <div id="introLogo" class="intro-logo hidden">
+          <img src="logo.webp" alt="Logo" class="intro-logo-img" />
+        </div>
+
         <div id="startMenu" class="start-menu hidden">
           <button id="bigPlayBtn" class="big-play-btn" title="Начать сначала">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z" />
-            </svg>
+            <img src="playicon.webp" alt="Play" class="big-play-icon" />
           </button>
           <button id="continueBtn" class="hidden">Продолжить</button>
         </div>
@@ -430,6 +501,7 @@
     const videoTitle = document.getElementById('videoTitle');
     const playOverlay = document.getElementById('playOverlay');
     const posterLayer = document.getElementById('posterLayer');
+    const introLogo = document.getElementById('introLogo');
     const startMenu = document.getElementById('startMenu');
     const bigPlayBtn = document.getElementById('bigPlayBtn');
     const continueBtn = document.getElementById('continueBtn');
@@ -440,6 +512,24 @@
     let uiHideTimeout;
     let hasStartedPlaying = false;
     let menuAlreadyShown = false;
+    let introTimeout = null;
+
+    function showPlayMenu() {
+      if (introTimeout) {
+        clearTimeout(introTimeout);
+        introTimeout = null;
+      }
+      introLogo.classList.remove('animate');
+      introLogo.classList.add('hidden');
+      if (!hasStartedPlaying) {
+        startMenu.classList.remove('hidden');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            startMenu.classList.add('visible');
+          });
+        });
+      }
+    }
 
     function showUI() {
       videoControls.classList.remove('hidden-ui');
@@ -509,6 +599,13 @@
     }
 
     function hideMenu() {
+      if (introTimeout) {
+        clearTimeout(introTimeout);
+        introTimeout = null;
+      }
+      introLogo.classList.remove('animate');
+      introLogo.classList.add('hidden');
+      startMenu.classList.remove('visible');
       startMenu.classList.add('hidden');
       videoWrap.classList.remove('dimmed');
     }
@@ -526,7 +623,6 @@
 
       const savedTime = currentVideoKey ? localStorage.getItem(currentVideoKey) : null;
       loader.classList.add('hidden');
-      startMenu.classList.remove('hidden');
       videoWrap.classList.add('dimmed');
 
       if (savedTime && Number(savedTime) > 10) {
@@ -541,7 +637,22 @@
       } else {
         continueBtn.classList.add('hidden');
       }
+
+      // Start 3-second logo intro cycle
+      introLogo.classList.remove('hidden');
+      void introLogo.offsetWidth;
+      introLogo.classList.add('animate');
+
+      if (introTimeout) clearTimeout(introTimeout);
+      introTimeout = setTimeout(() => {
+        showPlayMenu();
+      }, 3000);
     }
+
+    introLogo.onclick = (e) => {
+      e.stopPropagation();
+      showPlayMenu();
+    };
 
     bigPlayBtn.onclick = (e) => { e.stopPropagation(); video.currentTime = 0; togglePlay(true); };
     continueBtn.onclick = (e) => {
@@ -556,6 +667,13 @@
         video.pause(); video.src = "";
         hasStartedPlaying = false; menuAlreadyShown = false;
 
+        if (introTimeout) {
+          clearTimeout(introTimeout);
+          introTimeout = null;
+        }
+        introLogo.classList.remove('animate');
+        introLogo.classList.add('hidden');
+        startMenu.classList.remove('visible');
         startMenu.classList.add('hidden');
         continueBtn.classList.add('hidden');
         posterLayer.classList.remove('visible');
@@ -655,7 +773,13 @@
     video.onended = () => { localStorage.removeItem(currentVideoKey); mainPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>'; showUI(); };
 
     const p = new URLSearchParams(window.location.search);
-    if (p.get('v')) loadVideo(p.get('v')); else if (localStorage.getItem('last-video-url')) loadVideo(localStorage.getItem('last-video-url'));
+    if (p.get('v')) {
+      loadVideo(p.get('v'));
+    } else if (localStorage.getItem('last-video-url')) {
+      loadVideo(localStorage.getItem('last-video-url'));
+    } else {
+      restoreProgress();
+    }
   </script>
 </body>
 
