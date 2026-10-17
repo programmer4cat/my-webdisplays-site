@@ -97,6 +97,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      padding-bottom: 5%;
       background: rgba(0, 0, 0, .3);
       z-index: 150;
       font-size: 18px;
@@ -132,6 +133,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      padding-bottom: 5%;
       pointer-events: none;
       opacity: 0;
       transition: .2s;
@@ -185,12 +187,15 @@
       overflow: hidden;
       text-overflow: ellipsis;
       z-index: 95;
-      transition: opacity 0.3s;
+      transition: opacity 0.8s ease, transform 0.8s ease;
       pointer-events: none;
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .video-title.hidden-ui {
       opacity: 0;
+      transform: translateY(-8px);
     }
 
     .progress-wrapper {
@@ -310,7 +315,7 @@
     /* INTRO LOGO */
     .intro-logo {
       position: absolute;
-      top: 50%;
+      top: 45%;
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 100;
@@ -361,7 +366,7 @@
     /* START MENU CONTAINER */
     .start-menu {
       position: absolute;
-      top: 50%;
+      top: 45%;
       left: 50%;
       transform: translate(-50%, -50%) scale(0.92);
       z-index: 100;
@@ -436,7 +441,7 @@
         <video id="video"></video>
         <audio id="externalAudio"></audio>
 
-        <div class="video-title" id="videoTitle"></div>
+        <div class="video-title hidden-ui" id="videoTitle"></div>
 
         <div class="video-controls" id="videoControls">
           <div class="progress-wrapper">
@@ -681,6 +686,8 @@
         loader.classList.remove('hidden');
         loader.textContent = 'Загружаем...';
 
+        videoTitle.classList.add('hidden-ui');
+        videoTitle.textContent = '';
         currentVideoKey = 'video-progress-' + publicUrl;
         localStorage.setItem('last-video-url', publicUrl);
 
@@ -697,6 +704,11 @@
           if (mData.name) {
             videoTitle.textContent = mData.name;
             document.title = mData.name + " - Player";
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                videoTitle.classList.remove('hidden-ui');
+              });
+            });
             // Show menu as soon as we have metadata
             restoreProgress();
           }
